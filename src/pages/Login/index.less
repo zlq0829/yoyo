@@ -27,10 +27,34 @@
   height: 350px;
   border: none;
 }
+
 .login_phone {
   text-align: center;
 }
 
+.ant-tabs-tab:hover {
+  color: #666 !important;
+}
 
-
-
+.phone_login {
+  // 重制登陆按钮
+  .ant-button {
+    @apply font-bold text-white h-11 border-0;
+    background: linear-gradient(0deg, #293144, #435680);
+    font-family: Source Han Sans CN;
+  }
+  // 登陆按钮修改 :hover和:focus
+  .ant-btn:hover, .ant-btn:focus {
+    background: linear-gradient(0deg, #293144, #435680);
+    color: white
+  }
+  // 修改过去验证码按钮样式
+  ._button {
+    border-radius:999px;
+    border: 1px solid #F7B9A3;
+  }
+  //
+  .ant-form-item-control-input {
+    min-height: auto;
+  }
+}

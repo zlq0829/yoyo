@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import Login from '@/pages/Login';
 import Layout from '@/layout';
 import PrivateRoute from '@/components/PrivateRoute';
-// import './App.less';
+import './App.less';
 
 function App() {
   const queryClient = new QueryClient();

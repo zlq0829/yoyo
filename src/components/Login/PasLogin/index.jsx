@@ -45,7 +45,7 @@ const PasLogin = (props) => {
     let response = null
     const data = {
       phone_num: values.account,
-      pwd: values.password
+      password: values.password
     }
     try {
       response = await API.loginApi.loginByPassword(data)

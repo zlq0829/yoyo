@@ -5,7 +5,6 @@
 // import API from '@/services';
 // import '../index.less';
 
-
 // const PhoneLogin = (props) => {
 //   const { addProfile } = props;
 //   const [form] = Form.useForm();
@@ -134,32 +133,134 @@
 
 import React from 'react';
 import { Form, Input, Button, message } from 'antd';
+import UTILS from '@/utils';
+import API from '@/services';
 import phoneIcon from '@/assets/icons/phone_icon.png';
 import pasIcon from '@/assets/icons/pas_icon.png';
-import { MobileTwoTone, LockTwoTone } from '@ant-design/icons'
 
 class PhoneLogin extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      phone: '',
+      password: '',
+      // 表单校验规则
+      formItemRules: {
+        phoneRules: [
+          {
+            required: true,
+            message: '请输入手机号码',
+          },
+        ],
+        pasRules: [
+          {
+            required: true,
+            message: '请输入验证码',
+          },
+        ],
+      },
+    };
+  }
+
+  // 表单事件
+  onFinish = async (values) => {
+    const { phoneNum } = values
+    if(!UTILS.validate.validPhone(phoneNum)) {
+      message.error('手机号码格式不正确，请重新输入')
+      return false
+    }
+
+    let response = null
+    let data = {
+      phone_num: values.phoneNum,
+      code: values.code
+    }
+    try {
+      response = await API.loginApi.loginByValidCode(data)
+    } catch (error) {
+      message.error((error && error.message) || '登陆失败')
+      return false
+    }
+  }
+
+  getValidCode = async() => {
+    if(!this.state.phone) { return false }
+
+    let data = {
+      phone_num: this.state.phone,
+      sms_use: 'login'
+    }
+    try {
+      await API.loginApi.getValidCode(data)
+    } catch (error) {
+      message.warn((error && error.message) || '获取验证码失败')
+      return
+    }
+  }
+
   render() {
-    return(
-      <div className="login_phone">
-        <Form colon={false}  name='phoneForm'>
+    return (
+      <div className='phone_login w-80'>
+        <Form colon={false} name='phoneForm' requiredMark={false} onFinish={this.onFinish}>
           <div className='form_item'>
             <Form.Item
-              label={<img src={phoneIcon} alt=''/>}
+              name='phoneNum'
+              label={<img src={phoneIcon} alt='' />}
+              rules={this.state.formItemRules.phoneRules}
             >
-              <Input />
+              <div className='phone_input border-b'>
+                <Input
+                  value={this.state.phone}
+                  maxLength={11}
+                  placeholder='请输入手机号码'
+                  bordered={false}
+                  onChange={e =>{
+                    this.setState({phone: e.target.value})
+                  }}
+                  suffix={<Button className='_button'>获取验证码</Button>}
+                />
+              </div>
             </Form.Item>
           </div>
+
           <div className='form_item'>
             <Form.Item
-              label={<img src={pasIcon} />}
+              name='code'
+              label={<img src={pasIcon} alt='' />}
+              rules={this.state.formItemRules.pasRules}
             >
-              <Input />
+              <div className='phone_input border-b'>
+                <Input
+                  value={this.state.password}
+                  placeholder='请输入验证码'
+                  bordered={false}
+                  maxLength={6}
+                  onChange={e =>{
+                    this.setState({password: e.target.value})
+                  }}
+                />
+              </div>
             </Form.Item>
           </div>
+
+          <div className='warm_text text-xs text-gray-400 text-center mb-7'>
+            *未注册手机将默认注册新账户
+          </div>
+
+          <Form.Item>
+            <Button
+              className='ant-button'
+              size='large'
+              shape='round'
+              htmlType='submit'
+              block
+            >
+              登录
+            </Button>
+          </Form.Item>
         </Form>
       </div>
-    )
+    );
   }
 }
 export default PhoneLogin;
