@@ -1,6 +1,7 @@
 import { Tabs } from 'antd';
 import loginBgImage from '@/assets/images/login_bg.png';
-import Component from '@/components';
+import PasLogin from './components/PasLogin'
+import PhoneLogin from './components/PhoneLogin'
 import './index.less';
 
 const { TabPane } = Tabs;
@@ -16,10 +17,12 @@ const Login = (props) => {
           <div className='login_container_inner_right flex-1 flex justify-center'>
             <Tabs defaultActiveKey='phone' centered>
               <TabPane tab='手机登陆' key='phone'>
-                <Component.PhoneLogin addProfile={props.handleAddProfile}/>
+                {/* <Component.PhoneLogin addProfile={props.handleAddProfile}/> */}
+                <PhoneLogin />
               </TabPane>
               <TabPane tab='密码登陆' key='pas'>
-                <Component.PasLogin addProfile={props.handleAddProfile}/>
+                {/* <Component.PasLogin addProfile={props.handleAddProfile}/> */}
+                <PasLogin />
               </TabPane>
             </Tabs>
           </div>

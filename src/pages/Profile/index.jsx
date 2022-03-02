@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, message, Form, Input, Button, Image } from 'antd';
+import { Upload, message, Form, Input, Button } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import API from '@/services';
 import UTILS from '@/utils';
@@ -105,11 +105,6 @@ const Profile = () => {
       preffix: 'userImg',
     };
   };
-
-  // 修改input框value
-  const handleInputChange = (e) => {
-    console.log(e)
-  }
 
 
   return (

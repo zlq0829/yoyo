@@ -8,7 +8,7 @@ class _Layout extends React.Component {
   render() {
     return (
       <div className="flex-1">
-        <Layout style={{ height: '100%' }}>
+        <Layout className='layout'>
           <Layout.Sider
             collapsible
             breakpoint='xs'

@@ -5,7 +5,6 @@ import {
   QuestionCircleFilled,
   CheckCircleFilled,
 } from '@ant-design/icons';
-import testIcon from '@/assets/images/goos.jpg';
 import './index.less';
 
 const { TabPane } = Tabs;

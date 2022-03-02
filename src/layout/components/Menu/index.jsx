@@ -6,7 +6,7 @@ class _Menu extends React.Component {
   // 一级
   renderMenuItem = ({key, Icon, title, image}) => {
     return(
-      <Menu.Item icon={image? <img src={image} style={{width: '14px', height: '14px'}}/> : <Icon />} key={key}>
+      <Menu.Item icon={image? <img src={image} style={{width: '14px', height: '14px'}} alt=''/> : <Icon />} key={key}>
         <Link to={key}>{title}</Link>
       </Menu.Item>
     )

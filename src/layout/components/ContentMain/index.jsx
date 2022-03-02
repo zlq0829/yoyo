@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch } from 'react-router-dom'
+import { Switch, Redirect } from 'react-router-dom'
 
 import PrivateRoute from '@/components/PrivateRoute'
 import Login from '@/pages/Login'
@@ -30,6 +30,9 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/autoplay' component={AutoPlay}/>
           <PrivateRoute exact path='/goodsmanage' component={GoodsManage}/>
           <PrivateRoute exact path='/profile' component={Profile}/>
+
+          <Redirect exact from='/' to='/autoplay' />
+          <Redirect exact from='*' to='/404' />
         </Switch>
       </div>
     )
