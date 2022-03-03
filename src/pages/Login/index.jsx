@@ -1,12 +1,17 @@
 import { Tabs } from 'antd';
+import UTILS from '@/utils';
 import loginBgImage from '@/assets/images/login_bg.png';
-// import Component from '@/components'
 import PasLogin from './components/PasLogin'
 import PhoneLogin from './components/PhoneLogin'
 import './index.less';
 
+const { auth } = UTILS
 const { TabPane } = Tabs;
 const Login = (props) => {
+  // 本地缓存token
+  const handleKeepAuth = (token) => {
+    auth.setToken(token)
+  }
   return (
     <div className='login flex-1'>
       <div className='login_container'>
@@ -18,12 +23,10 @@ const Login = (props) => {
           <div className='login_container_inner_right flex-1 flex justify-center'>
             <Tabs defaultActiveKey='phone' centered>
               <TabPane tab='手机登陆' key='phone'>
-                {/* <Component.PhoneLogin addProfile={props.handleAddProfile}/> */}
-                <PhoneLogin />
+                <PhoneLogin handleKeepAuth={handleKeepAuth}/>
               </TabPane>
               <TabPane tab='密码登陆' key='pas'>
-                {/* <Component.PasLogin addProfile={props.handleAddProfile}/> */}
-                <PasLogin />
+                <PasLogin handleKeepAuth={handleKeepAuth}/>
               </TabPane>
             </Tabs>
           </div>

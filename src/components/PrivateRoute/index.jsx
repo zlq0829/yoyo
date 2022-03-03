@@ -3,12 +3,12 @@ import { Route, Redirect } from 'react-router-dom';
 import UTILS from '@/utils';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
-  const { getLocal } = UTILS.localCache;
+  const { getToken } = UTILS.auth;
   return (
     <Route
       {...rest}
       render={(props) =>
-        !getLocal('token') ? (
+        !!getToken() ? (
           <Component {...props} />
         ) : (
           <Redirect to={{

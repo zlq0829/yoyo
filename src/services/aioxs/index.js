@@ -4,6 +4,7 @@ import { Spin, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import Axios from 'axios';
 import UTILS from '@/utils'
+const { auth, validate } = UTILS
 
 // 加载动效，效缓解用户的焦虑。
 let requestCount = 0;
@@ -37,7 +38,7 @@ const responseHandle = {
     window.location.href = window.location.origin;
   },
   500: (error) => {
-    if(UTILS.validate.isString(error)) {
+    if(validate.isString(error)) {
       message.error(error);
     }
   },
@@ -54,8 +55,8 @@ const service = Axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config) => {
-    UTILS.localCache.getLocal('token') &&
-      (config.headers.Authorization = 'JWT ' + UTILS.localCache.getLocal('token'));
+    auth.getToken() &&
+      (config.headers.Authorization = 'JWT ' + auth.getToken());
 
     if (
       config.method.toLocaleLowerCase() === 'post' ||
@@ -77,6 +78,7 @@ service.interceptors.request.use(
 
   (err) => {
     console.log(err, 'request');
+    hideLoading()
     return Promise.reject(err);
   }
 );
@@ -84,8 +86,8 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    console.log(response)
     hideLoading()
+    console.log(response, 'response');
     return responseHandle[response.data.code || 'default'](response);
   },
 

@@ -1,8 +1,9 @@
 import * as validate from './validate'
-import localCache from './localCache'
-
+import * as type from './type'
+import * as auth from './auth'
 const UTILS = {
   validate,
-  localCache
+  auth,
+  type
 }
 export default UTILS

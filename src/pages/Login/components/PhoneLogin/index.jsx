@@ -1,138 +1,5 @@
-// import React from 'react';
-// import { Form, Input, Button, message } from 'antd';
-
-// import UTILS from '@/utils';
-// import API from '@/services';
-// import '../index.less';
-
-// const PhoneLogin = (props) => {
-//   const { addProfile } = props;
-//   const [form] = Form.useForm();
-//   const phoneRef = React.useRef('phone')
-
-//   // 表单校验规则
-//   const formItemRules = {
-//     phoneRules: [
-//       {
-//         required: true,
-//         message: '请输入手机号码',
-//       },
-//     ],
-//     pasRules: [
-//       {
-//         required: true,
-//         message: '请输入验证码',
-//       },
-//     ],
-//   };
-
-//   // 获取验证码
-//   const getValidCode = async () => {
-//     const { value } = phoneRef.current.state
-//     if(!value) { return }
-
-//     const data = {
-//       phone_num: value,
-//       sms_use: 'login'
-//     }
-//     try {
-//       await API.loginApi.getValidCode(data)
-//     } catch (error) {
-//       message.error('获取验证码失败')
-//     }
-//   }
-
-//   // 登录处理事件
-//   const handleLogin = (values) => {
-//     let response = null
-//     const data = {
-//       phone_num: values.phoneNum,
-//       code: values.code
-//     }
-//     try {
-//       response = API.loginApi.loginByValidCode(data)
-//     } catch (error) {
-//       message.error('登录失败')
-//       return
-//     }
-
-//     // 这里需要将内容存到store中,暂时没写
-//     console.log(response, 'phonelogin')
-//     addProfile(response)
-
-//   }
-
-//   // 表单事件
-//   const onFinish = (values) => {
-//     const { phoneNum } = values
-//     if(!UTILS.validate.validPhone(phoneNum)) {
-//       message.error('手机号码格式不正确，请重新输入')
-//       return false
-//     }
-//     handleLogin(values)
-//   };
-
-//   return (
-//     <div className='phone_login w-80'>
-//       <Form colon={false} requiredMark={false} onFinish={onFinish} form={form} name='phoneForm'>
-//         <div className='form_item'>
-//           <Form.Item
-//             name='phoneNum'
-//             label={<img src={phoneIcon} alt='' />}
-//             rules={formItemRules.phoneRules}
-//           >
-//             <div className='phone_input border-b'>
-//               <Input
-//                 ref={phoneRef}
-//                 placeholder='请输入手机号码'
-//                 bordered={false}
-//                 maxLength={11}
-//                 suffix={<Button onClick={getValidCode} className='rounded-full'>获取验证码</Button>}
-//               />
-//             </div>
-//           </Form.Item>
-//         </div>
-
-//         <div className='form_item'>
-//           <Form.Item
-//             name='code'
-//             label={<img src={pasIcon} alt='' />}
-//             rules={formItemRules.pasRules}
-//           >
-//             <div className='phone_input border-b'>
-//               <Input
-//                 placeholder='请输入验证码'
-//                 bordered={false}
-//                 maxLength={6}
-//               />
-//             </div>
-//           </Form.Item>
-//         </div>
-
-//         <div className='warm_text text-xs text-gray-400 text-center mb-7'>
-//           *未注册手机将默认注册新账户
-//         </div>
-
-//         <Form.Item>
-//           <Button
-//             className='ant-button'
-//             size='large'
-//             shape='round'
-//             htmlType='submit'
-//             block
-//           >
-//             登录
-//           </Button>
-//         </Form.Item>
-//       </Form>
-//     </div>
-//   );
-// };
-
-// export default PhoneLogin;
-
 import React from 'react';
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, message } from 'antd';
 import UTILS from '@/utils';
 import API from '@/services';
 import phoneIcon from '@/assets/icons/phone_icon.png';
@@ -144,41 +11,27 @@ class PhoneLogin extends React.Component {
     this.state = {
       phone: '',
       code: '',
-      // 表单校验规则
-      formItemRules: {
-        phoneRules: [
-          {
-            required: true,
-            message: '请输入手机号码',
-          },
-        ],
-        pasRules: [
-          {
-            required: true,
-            message: '请输入验证码',
-          },
-        ],
-      },
     };
   }
 
   // 表单事件
   onFinish = async (values) => {
-    const { phoneNum } = values
-    if(!UTILS.validate.validPhone(phoneNum)) {
-      message.error('手机号码格式不正确，请重新输入')
+    const { phone, code } = this.state
+    if(!UTILS.validate.validPhone(phone)) {
+      // message.error('手机号码格式不正确，请重新输入')
       return false
     }
 
     let response = null
     let data = {
-      phone_num: this.state.phone,
-      code: this.state.code
+      phone_num: phone,
+      code
     }
     try {
       response = await API.loginApi.loginByValidCode(data)
+      console.log(response)
     } catch (error) {
-      message.error((error && error.message) || '登陆失败')
+      // message.error((error && error.message) || '登陆失败')
       return false
     }
   }
@@ -201,12 +54,12 @@ class PhoneLogin extends React.Component {
   render() {
     return (
       <div className='login_input w-80'>
-        <Form colon={false} name='phoneForm' requiredMark={false} onFinish={this.onFinish}>
-          <div className='form_item mb-4'>
+        <Form colon={false} name='phoneForm' requiredMark={false} >
+          {/* 手机号码框 */}
+          <div className='form_item mb-7'>
             <Form.Item
               name='phoneNum'
               label={<img src={phoneIcon} alt='' />}
-              rules={this.state.formItemRules.phoneRules}
             >
               <div className='phone_input border-b'>
                 <Input
@@ -217,17 +70,17 @@ class PhoneLogin extends React.Component {
                   onChange={e =>{
                     this.setState({phone: e.target.value})
                   }}
-                  suffix={<Button className='_button'>获取验证码</Button>}
+                  suffix={<button className='_button py-1 px-2.5'>获取验证码</button>}
                 />
               </div>
             </Form.Item>
           </div>
 
-          <div className='form_item mb-4'>
+          {/* 验证码 */}
+          <div className='form_item mb-7'>
             <Form.Item
               name='password'
               label={<img src={pasIcon} alt='' />}
-              rules={this.state.formItemRules.pasRules}
             >
               <div className='phone_input border-b'>
                 <Input
@@ -247,17 +100,10 @@ class PhoneLogin extends React.Component {
             *未注册手机将默认注册新账户
           </div>
 
-          <Form.Item>
-            <Button
-              className='ant-button'
-              size='large'
-              shape='round'
-              htmlType='submit'
-              block
-            >
-              登录
-            </Button>
-          </Form.Item>
+          {/* 按钮 */}
+          <div className='w-full' onClick={this.onFinish}>
+            <button className='ant-button w-full rounded-full' type='button'>登 录</button>
+          </div>
         </Form>
       </div>
     );
