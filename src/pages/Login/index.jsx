@@ -1,7 +1,7 @@
 import { Tabs } from 'antd';
 import loginBgImage from '@/assets/images/login_bg.png';
-import Component from '@/components'
-// import PasLogin from './components/PasLogin'
+// import Component from '@/components'
+import PasLogin from './components/PasLogin'
 import PhoneLogin from './components/PhoneLogin'
 import './index.less';
 
@@ -22,8 +22,8 @@ const Login = (props) => {
                 <PhoneLogin />
               </TabPane>
               <TabPane tab='密码登陆' key='pas'>
-                <Component.PasLogin addProfile={props.handleAddProfile}/>
-                {/* <PasLogin /> */}
+                {/* <Component.PasLogin addProfile={props.handleAddProfile}/> */}
+                <PasLogin />
               </TabPane>
             </Tabs>
           </div>

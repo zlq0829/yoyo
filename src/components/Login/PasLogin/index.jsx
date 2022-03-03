@@ -55,7 +55,7 @@ const PasLogin = (props) => {
 
     // 个人信息缓存到store中
     console.log(response, 'phonelogin')
-    addProfile(response)
+    // addProfile(response)
   }
 
   // 表单事件

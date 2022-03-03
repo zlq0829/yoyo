@@ -143,7 +143,7 @@ class PhoneLogin extends React.Component {
     super(props);
     this.state = {
       phone: '',
-      password: '',
+      code: '',
       // 表单校验规则
       formItemRules: {
         phoneRules: [
@@ -172,8 +172,8 @@ class PhoneLogin extends React.Component {
 
     let response = null
     let data = {
-      phone_num: values.phoneNum,
-      code: values.code
+      phone_num: this.state.phone,
+      code: this.state.code
     }
     try {
       response = await API.loginApi.loginByValidCode(data)
@@ -200,9 +200,9 @@ class PhoneLogin extends React.Component {
 
   render() {
     return (
-      <div className='phone_login w-80'>
+      <div className='login_input w-80'>
         <Form colon={false} name='phoneForm' requiredMark={false} onFinish={this.onFinish}>
-          <div className='form_item'>
+          <div className='form_item mb-4'>
             <Form.Item
               name='phoneNum'
               label={<img src={phoneIcon} alt='' />}
@@ -223,20 +223,20 @@ class PhoneLogin extends React.Component {
             </Form.Item>
           </div>
 
-          <div className='form_item'>
+          <div className='form_item mb-4'>
             <Form.Item
-              name='code'
+              name='password'
               label={<img src={pasIcon} alt='' />}
               rules={this.state.formItemRules.pasRules}
             >
               <div className='phone_input border-b'>
                 <Input
-                  value={this.state.password}
+                  value={this.state.code}
                   placeholder='请输入验证码'
                   bordered={false}
                   maxLength={6}
                   onChange={e =>{
-                    this.setState({password: e.target.value})
+                    this.setState({code: e.target.value})
                   }}
                 />
               </div>

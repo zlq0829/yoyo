@@ -12,7 +12,7 @@ function mapStateToProps() {
 function mapDispatchToProps(dispatch) {
   return {
     handleAddProfile(profile) {
-      dispatch(ACTIONS.profileAction.addProfile(profile))
+      // dispatch(ACTIONS.profileAction.addProfile(profile))
     }
   }
 }
