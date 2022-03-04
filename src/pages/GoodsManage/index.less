@@ -1,14 +1,31 @@
-.w_120 {
-  width: 118px;
+.goodsmanage {
+  // 内部区域高度
+  .goodsmanage_h_full {
+    height: calc(100vh - 50px - 30px) ;
+  }
+  // 商品图片区域高度
+  .good_list_wrap_h_full {
+    height: calc(100vh - 50px - 30px - 62px) !important;
+    padding-bottom: 16px;
+    box-sizing: border-box;
+    overflow: auto ;
+  }
+  .w_83 {
+    width: 83px;
+  }
+  .h_83 {
+    height: 83px;
+  }
+  .bg-FF8462 {
+    background: #ff8462;
+  }
+  .goods_item__hover:hover > .edit {
+    display: flex;
+  }
+  ._video {
+    object-fit: cover
+  }
 }
-.h_120 {
-  height: 118px;
-}
-.h__90 {
-  height: 90%;
-}
+
 // 修改分页的< >图标的杭行高
-.ant-pagination-prev,
-.ant-pagination-next {
-  line-height: 14px;
-}
+

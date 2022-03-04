@@ -66,7 +66,7 @@ class AutoPlay extends React.Component {
 
     if(response && response.data.content.length > 0) {
 
-      response.data.content.map(option => {
+      response.data.content.forEach(option => {
         option.label = option.name
         option.value = option.id
       })

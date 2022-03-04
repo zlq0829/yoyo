@@ -2,9 +2,11 @@
 import * as loginApi from './api/login'
 import * as profileApi from './api/profile'
 import * as autoPlayApi from './api/autoplay'
+import * as goodsManageApi from './api/goodsmanage'
 const API = {
   loginApi,
   profileApi,
-  autoPlayApi
+  autoPlayApi,
+  goodsManageApi
 }
 export default API

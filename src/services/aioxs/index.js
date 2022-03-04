@@ -38,6 +38,7 @@ const responseHandle = {
     window.location.href = window.location.origin;
   },
   500: (error) => {
+    console.log(error)
     if(validate.isString(error)) {
       message.error(error);
     }
