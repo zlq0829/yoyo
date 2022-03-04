@@ -6,12 +6,13 @@ import UTILS from '@/utils';
 import defaultAvatar from '@/assets/images/character_model_yoyo.png';
 import './index.less';
 
+const { auth } = UTILS
 const Profile = () => {
   // 更宽图片时触发的loading的状态
   const [loading, setLoading] = useState(false);
 
   // 人物头像
-  const avatar = (UTILS.localCache.getLocal('avatar'))
+  const avatar = (auth.getLocal('avatar'))
   const [imageUrl, setImageUrl] = useState(avatar);
 
   // Upload钩子函数
@@ -108,7 +109,7 @@ const Profile = () => {
 
 
   return (
-    <div className='h-full p-3 box-border'>
+    <div className='h-full box-border'>
       <div className='bg-white relative rounder h-full p-5'>
         <div className='base_profile mb-12 w-full'>
           <div className='w-32 font-semibold font_20 mt_20'>基本信息</div>

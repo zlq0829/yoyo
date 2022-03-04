@@ -6,28 +6,18 @@ import './index.less';
 
 class AutoPlay extends React.Component {
   state = {
-    // select组件options
-    options: [
-      {
-        label: '西瓜',
-        value: 'xigua',
-      },
-      {
-        label: '苹果',
-        value: 'pg',
-      },
-    ],
-
-    // 商品
-    goods: [],
-
-    // 横竖切换, 默认是横屏 false
-    reverse: true,
+    options: [],          // select组件options
+    goods: [],            // 商品
+    reverse: true,        // 横竖切换, 默认是竖屏 true
+    defaultValue: '',     // 下拉框默认选中第一条
+    loading: false,       // 下拉框loading
   };
 
   // Select组件value值改变
   handleChange = (value) => {
-    console.log(value);
+    let good = this.state.options.find(good => value === good.id)
+    this.setState({ defaultValue: good.label })
+    this.getGoodsList(value)
   };
 
   // 横竖屏切换
@@ -38,17 +28,30 @@ class AutoPlay extends React.Component {
   };
 
   // 改变商品
-  handleChangeGoods = (item) => {
-    console.log(item)
-  }
+  handleChangeGoods = (item) => {}
 
   // 请求商品列表
   getGoodsList = async (params) => {
     let response = null
+    let data = {
+      play_list_id: params,
+      size: (params.size && params.size) || 999,
+    }
+
+    this.setState({ loading: true })
     try {
-      response = await API.autoPlayApi.getGoodsList()
+      response = await API.autoPlayApi.getGoodsList(data)
+      this.setState({ loading: false })
     } catch (error) {
+      this.setState({ loading: false })
       return false
+    }
+
+    if(response && response.data.length > 0 > 0) {
+      this.setState({
+        goods: response.data
+      })
+
     }
   }
 
@@ -57,9 +60,21 @@ class AutoPlay extends React.Component {
     let response = null
     try {
       response = await API.autoPlayApi.getPlaylist()
-      this.autoPlayApi(response)
     } catch (error) {
       return false
+    }
+
+    if(response && response.data.content.length > 0) {
+
+      response.data.content.map(option => {
+        option.label = option.name
+        option.value = option.id
+      })
+      this.setState({
+        options: response.data.content,
+        defaultValue: response.data.content[0].label
+      })
+      this.getGoodsList(response.data.content[0].id)
     }
   }
 
@@ -72,9 +87,10 @@ class AutoPlay extends React.Component {
           <div className='border-b text-center mb-3 h_45 line_height_45'>直播列表</div>
           <div className='mb-3 flex justify-between px-3'>
             <Select
-              defaultValue={this.state.options[0].label}
+              defaultActiveFirstOption
+              value={this.state.defaultValue}
               className='rounded-full flex-1 site-select'
-              loading={false}
+              loading={this.state.loading}
               placeholder='请选择'
               options={this.state.options}
               onChange={this.handleChange}
@@ -86,12 +102,12 @@ class AutoPlay extends React.Component {
           <div className='goods relative box-border pr-4 goods_h'>
             {this.state.goods.length > 0 ? (
               <div className='flex flex-wrap'>
-                {this.state.goods.map((goods) => {
+                {this.state.goods.map((good) => {
                   return (
-                    <div className='flex flex-col goods_item  w_83 ml-4 mb-4 cursor-pointer' onClick={this.handleChangeGoods}>
-                      <img src={goods.url} alt='' className=' w_83 rounded' />
+                    <div className='flex flex-col goods_item  w_83 ml-4 mb-4 cursor-pointer rounded' onClick={() =>this.handleChangeGoods(good)} key={good.id}>
+                      <img src={good.image[0]} alt='' className=' w_83 rounded' />
                       <div className='text-overflow font_12 mt-1 px-1'>
-                        {goods.name}
+                        {good.name}
                       </div>
                     </div>
                   );
@@ -108,10 +124,14 @@ class AutoPlay extends React.Component {
         </div>
 
         {/* 中 */}
-        <div className='m_l_r_24 w_300 flex-1 rounded  box-border flex flex-col'>
-          <div className='play_window bg-white flex-1 rounded relative'>
+        <div className='m_l_r_24 w_300 flex-1  box-border flex flex-col' style={{ maxWidth: !this.state.reverse? '600px' : '500px', width: !this.state.reverse? '400px' : '300px', minWidth: !this.state.reverse? '400px' : '300px' }}>
+          <div   className={[!this.state.reverse && 'flex items-center', 'rounded relative flex-1 bg-white' ].join(' ')}  >
+            {/* 横竖屏切换className= */}
+            {
+              this.state.reverse?(<div className='play_window h-full rounded' />) : (<div className='play_window w-full h_268 rounded'/>)
+            }
             <div
-              className='mt-3 font_14 color_FF8462 bg-001529 w_50 text-center absolute right_0 rounded-l cursor-pointer'
+              className='font_14 color_FF8462 bg-001529 w_50 text-center absolute right-0 top-2 rounded-l cursor-pointer'
               onClick={this.handleReverse}
             >
               {this.state.reverse ? '横屏' : '竖屏'}

@@ -92,7 +92,7 @@ const GoodsManage = () => {
   }, [activeKey]);
 
   return (
-    <div className='h-full p-3 box-border'>
+    <div className='h-full box-border'>
       <div className='px-4 py-3 bg-white rounder h-full relative'>
         <div className='h__90'>
           <Tabs

@@ -72,12 +72,12 @@ service.interceptors.request.use(
       message.error(`${config.method}不是有效的方法`);
       return false;
     }
+
     startLoading()
     return config;
   },
 
   (err) => {
-    console.log(err, 'request');
     hideLoading()
     return Promise.reject(err);
   }
@@ -87,7 +87,6 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     hideLoading()
-    console.log(response, 'response');
     return responseHandle[response.data.code || 'default'](response);
   },
 
