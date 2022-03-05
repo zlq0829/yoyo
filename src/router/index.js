@@ -15,7 +15,7 @@ const routes = [
     key: '/goodsmanage',
   },
   {
-    title: '导航组件',
+    title: '个人中心',
     Icon: UserOutlined,
     key: '/profile',
   },
