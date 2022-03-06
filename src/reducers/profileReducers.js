@@ -1,9 +1,7 @@
-const initialState = {
-  // 用户个人信息
-  profile: {},
-};
+import utils from '@/utils'
+const { auth }  = utils
 
-const handleProfile = (state = initialState.profile, action) => {
+const profileReducers = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_PROFILE':
       return {
@@ -12,14 +10,9 @@ const handleProfile = (state = initialState.profile, action) => {
     case 'MODIFY_PROFILE':
       return state;
     default:
-      return state;
+      return auth.getLocal('userInfo')? JSON.parse(auth.getLocal('userInfo')) : state;
   }
 };
 
-const profileReducers = (state = initialState.profile, action) => {
-  return {
-    profile: handleProfile(initialState.profile, action),
-  };
-};
 
 export default profileReducers;

@@ -81,3 +81,14 @@ export function validPhone(phone) {
   const reg = /^1(3|4|5|6|7|8|9)([0-9]{9})/
   return reg.test(phone)
 }
+
+/**
+ *
+ * @param {string} phone
+ * @returns string
+ */
+export function hidePhoneNum(phone) {
+  const reg = /^(\d{3})\d{4}(\d{4})$/
+  return phone.replace(reg, '$1****$2')
+}
+

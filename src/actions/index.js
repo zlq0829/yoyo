@@ -1,7 +1,7 @@
-import profileAction from './profileAction'
+import * as profile from './profile'
 
-const ACTIONS = {
-  profileAction
+const action = {
+  profile
 }
 
-export default ACTIONS
+export default action

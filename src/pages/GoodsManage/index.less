@@ -13,9 +13,12 @@
   .w_83 {
     width: 83px;
   }
+
   .h_83 {
     height: 83px;
   }
+
+
   .bg-FF8462 {
     background: #ff8462;
   }
@@ -31,6 +34,70 @@
   .reload:active {
     background: rgb(219, 216, 216);
   }
+  .scale_8 {
+    transform: scale(80%)
+  }
+
+
 }
 
-
+// 重制弹窗样式
+.ant-modal-root {
+  .font_12 {
+    font-size: 12px;
+  }
+  .ant-modal-header {
+    padding:5px 0;
+    border-bottom: none;
+    background: #001529;
+    .ant-modal-title {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 12px;
+      text-align: center;
+    }
+  }
+  .ant-modal-body {
+    padding: 15px 10px;
+    height: 200px;
+  }
+  .ant-modal-footer {
+    border-top: 1px solid #ccc;
+    padding: 5px 15px;
+    .ant-btn {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 12px;
+      padding: 2px 10px;
+      height: auto;
+    }
+    .ant-btn-primary {
+      border: none;
+      font-size: 12px;
+    }
+  }
+  .w__8 {
+    width: 65%;
+  }
+  .border_1 {
+    border: 1px solid #ccc;
+  }
+  .search_frame {
+    height: 22px;
+    .ant-input{
+      line-height: auto;
+      height: 20px;
+      padding: 10px;
+      border-radius:3px;
+    }
+    .ant-input:hover,
+    .ant-input:focus{
+      box-shadow: none !important;
+      border-color: #ccc !important;
+      border-right-width: 1px !important;
+    }
+  }
+  .goods_wrap {
+    height: calc(200px - 22px - 30px - 0.75rem);
+    overflow: auto;
+  }
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, Empty } from 'antd';
+import { Tabs, Empty, Modal, Input } from 'antd';
 import { RedoOutlined } from '@ant-design/icons';
 import API from '@/services';
 import './index.less';
@@ -12,6 +12,8 @@ class GoodsManage extends React.Component {
       goodsList: [], // 商品列表
       playList: [], // 播放列表
       tabActive: '1', // 激活的卡片
+      isModalVisible: false, // 弹窗
+      title: '新增播放列表', // 弹窗标题
     };
   }
 
@@ -33,15 +35,39 @@ class GoodsManage extends React.Component {
   };
 
   // 新增商品
-  handleAddGoods = () => {};
+  handleAddGoods = () => {
+    this.setState({
+      isModalVisible: true,
+      title: '新增商品',
+    });
+  };
 
   // 新增播放
-  handleAddPlays = () => {};
+  handleAddPlays = () => {
+    this.setState({
+      isModalVisible: true,
+      title: '新增播放',
+    });
+  };
 
   // 刷新
   handleReLoad = () => {
-    this.getGoodsAndPlaylist()
-  }
+    this.getGoodsAndPlaylist();
+  };
+
+  // 弹窗点击确定回调
+  handleOk = () => {
+    this.setState({
+      isModalVisible: false,
+    });
+  };
+
+  // 弹窗点击遮罩层或右上角叉或取消按钮的回调
+  handleCancel = () => {
+    this.setState({
+      isModalVisible: false,
+    });
+  };
 
   // 商品 && 播放列表请求
   getGoodsAndPlaylist = async () => {
@@ -55,7 +81,6 @@ class GoodsManage extends React.Component {
       return false;
     }
 
-    console.log(response);
     if (response && response.length > 0) {
       this.setState({
         goodsList: response[0].data.content,
@@ -66,14 +91,14 @@ class GoodsManage extends React.Component {
 
   // 生命周期
   componentDidMount() {
-    this.getGoodsAndPlaylist();
+    // this.getGoodsAndPlaylist();
   }
 
   render() {
     return (
       <div className='box-border goodsmanage overflow-hidden'>
         <div className='pb-6 pt-4 pl-6 bg-white rounder relative goodsmanage_h_full'>
-          <Tabs onChange={this.handleTabChange}>
+          <Tabs onChange={this.handleTabChange} defaultActiveKey='2'>
             <TabPane tab='所有商品' key='1'>
               <div
                 className={[
@@ -119,10 +144,15 @@ class GoodsManage extends React.Component {
                               </span>
                             </div>
                           </div>
-                          <div className='text-overflow font_12 mt-3 px-1'>
+                          <div className='font_12 mt-3 px-1'>
                             {/* 测试测试测试测试测试测试测试 */}
-                            <div>{goods.name}</div>
-                            <div>💰{goods.price}</div>
+                            <div className='text-overflow'>
+                              测试测试测试测试测试测试测试
+                            </div>
+                            <div className='flex items-end overflow-hidden'>
+                              <span>💰</span>
+                              <span className='scale_8'>{goods.price}</span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -187,20 +217,64 @@ class GoodsManage extends React.Component {
             </TabPane>
           </Tabs>
           <div className='absolute z-10 _top right-6 flex'>
-            <div className='border flex items-center py-0.5 px-4 rounded cursor-pointer reload' onClick={this.handleReLoad}>
+            <div
+              className='border flex items-center py-0.5 px-4 rounded cursor-pointer reload'
+              onClick={this.handleReLoad}
+            >
               <RedoOutlined />
             </div>
             {this.state.tabActive === '1' ? (
-              <div className='border flex items-center py-0.5 px-4 rounded cursor-pointer ml-3'>
+              <div
+                className='border flex items-center py-0.5 px-4 rounded cursor-pointer ml-3'
+                onClick={this.handleAddGoods}
+              >
                 新增
               </div>
             ) : (
-              <div className='border flex items-center py-0.5 px-4 rounded cursor-pointer ml-3' >
+              <div
+                className='border flex items-center py-0.5 px-4 rounded cursor-pointer ml-3'
+                onClick={this.handleAddPlays}
+              >
                 新增
               </div>
             )}
           </div>
         </div>
+        <Modal
+          title={this.state.title}
+          visible={!this.state.isModalVisible}
+          closable={false}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+        >
+          <div className='search_frame mb-3'>
+            <label className='font_12'>名称：</label>
+            <Input className='w__8 border_1' placeholder='请定义播放名称' />
+          </div>
+          <div className='goods_wrap overflow-hidden'>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            <p>1</p>
+            {/* <div className='box-border'> */}
+
+            {/* </div> */}
+          </div>
+        </Modal>
       </div>
     );
   }

@@ -1,11 +1,14 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Form, Input, Checkbox, message } from 'antd';
-import UTILS from '@/utils';
+import utils from '@/utils';
 import API from '@/services';
+import action from '@/actions'
 import userIcon from '@/assets/icons/user_icon.png';
 import eyeIcon from '@/assets/icons/eye_icon.png';
 
-const { auth } = UTILS
+const { auth, validate } = utils
+const { profile } = action
 class PasLogin extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +23,7 @@ class PasLogin extends React.Component {
   // 表单事件
   onFinish = async () => {
     const { account, password, checked } = this.state
-    if(!UTILS.validate.validPhone(account)) {
+    if(!validate.validPhone(account)) {
       message.error('账号格式不正确，请重新输入')
       return false
     }
@@ -37,11 +40,15 @@ class PasLogin extends React.Component {
     }
     try {
       response = await API.loginApi.loginByPassword(data)
-      console.log(response.data)
-      this.props.handleKeepAuth(response.data.token)
     } catch (error) {
       message.error((error && error.message) || '登陆失败')
       return false
+    }
+
+    if(response && response.data) {
+      auth.setToken(response.data.token)
+      auth.setLocal('userInfo', JSON.stringify(response.data))
+      this.props.handleKeepProfile(response.data)
     }
   }
 
@@ -102,4 +109,16 @@ class PasLogin extends React.Component {
     )
   }
 }
-export default PasLogin;
+
+const mapStateToProps = state => ({})
+const mapDispatchToProps = dispatch => ({
+  handleKeepProfile: (data) => {
+    dispatch(profile.addProfile(data))
+  }
+})
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PasLogin)
+
+

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Input, message } from 'antd';
+import { connect } from 'react-redux';
 import UTILS from '@/utils';
 import API from '@/services';
 import phoneIcon from '@/assets/icons/phone_icon.png';
@@ -52,6 +53,7 @@ class PhoneLogin extends React.Component {
   }
 
   render() {
+    console.log( this.props )
     return (
       <div className='login_input w-80'>
         <Form colon={false} name='phoneForm' requiredMark={false} >
@@ -109,4 +111,15 @@ class PhoneLogin extends React.Component {
     );
   }
 }
-export default PhoneLogin;
+
+function mapDispatchToProps(dispatch) {
+  return {
+    handleAddProfile(profile) {
+      console.log(profile, 'profile')
+      // dispatch(ACTIONS.profileAction.addProfile(profile))
+    }
+  }
+}
+export default connect(
+  mapDispatchToProps
+)(PhoneLogin)
