@@ -36,6 +36,11 @@ function deleteGoods(id) {
   })
 }
 
+/**
+ * @description 删除播放
+ * @param {id} id
+ * @returns
+ */
 function deletePlay(id) {
   return request({
     url: `/api/play_list/${id}`,
@@ -43,9 +48,37 @@ function deletePlay(id) {
   })
 }
 
+/**
+ * @description 增加播放
+ * @param {object} data
+ * @returns
+ */
+function addPlay(data) {
+  return request({
+    url: '/api/play_list',
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ *
+ * @param {object} data
+ * @returns
+ */
+function getPlayGoodsList(data) {
+  return request({
+    url: '/api/play_list/get_commodity',
+    method: 'GET',
+    data
+  })
+}
+
 export {
   getGoodsList,
   getPlaylist,
   deleteGoods,
-  deletePlay
+  deletePlay,
+  addPlay,
+  getPlayGoodsList
 }

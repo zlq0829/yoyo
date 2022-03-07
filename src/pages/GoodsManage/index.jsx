@@ -1,8 +1,9 @@
 import React from 'react';
 import { Tabs, Empty, Modal, Input, message } from 'antd';
+import { connect } from 'react-redux';
+import { normalize } from 'normalizr';
 import { RedoOutlined } from '@ant-design/icons';
 import API from '@/services';
-import img from '@/assets/images/login_bg.png'
 import './index.less';
 const { TabPane } = Tabs;
 
@@ -39,13 +40,32 @@ class GoodsManage extends React.Component {
   };
 
   // 播放列表编辑
-  handlePlaysEdit = () => {};
+  handlePlaysEdit = async (play) => {
+    let response = null
+    let data = {
+      play_list_id: play.id,
+      size: 9999
+    }
+    try {
+      response = await API.goodsManageApi.getPlayGoodsList(data)
+    } catch (error) {
+      return false
+    }
+
+    if(response && response.data.length > 0) {
+      response.data.forEach(e => {
+        e.checked = true
+      })
+      console.log( response )
+    }
+  };
 
   // 播放列表删除
   handlePlaysDelete = async (play) => {
     let response = null
     try {
       response = await API.goodsManageApi.deletePlay(play.id)
+      console.log( response )
     } catch (error) {
       return false
     }
@@ -95,7 +115,7 @@ class GoodsManage extends React.Component {
     goodsList.some(goods => {
       if(!goods.checked) {
         checkedAll = false
-        return
+        return true
       }
     })
     this.setState({ checkedAll, goodsList: this.state.goodsList })
@@ -141,21 +161,36 @@ class GoodsManage extends React.Component {
     }
 
     let response = null
+    let data = {
+      commodity_list: goodsId,
+      name: goodsName,
+      user: this.props.userInfo.profile.id
+    }
     try {
-      // response = await
+      response = await API.goodsManageApi.addPlay(data)
     } catch (error) {
       message.error((error && error.message) || '新增失败')
       return false
     }
-    this.setState({
-      isModalVisible: false,
-    });
+    if(response && response.code===200){
+      this.handleCancel()
+      this.getGoodsAndPlaylist()
+    }
+
   };
 
   // 弹窗点击遮罩层或右上角叉或取消按钮的回调
   handleCancel = () => {
+    let goodsList = this.state.goodsList.filter(goods => {
+      goods.checked = false
+      return goods
+    })
+
     this.setState({
       isModalVisible: false,
+      checkedAll: false,
+      goodsList,
+      goodsName: ''
     });
   };
 
@@ -280,7 +315,7 @@ class GoodsManage extends React.Component {
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span
                                 className='text-center flex-1'
-                                onClick={this.handlePlaysEdit}
+                                onClick={e =>this.handlePlaysEdit(play)}
                               >
                                 编辑
                               </span>
@@ -333,7 +368,7 @@ class GoodsManage extends React.Component {
         </div>
         <Modal
           title={this.state.title}
-          visible={!this.state.isModalVisible}
+          visible={this.state.isModalVisible}
           closable={false}
           footer={<div>
             <button className='border border_r_3 font_12 py_2 px_10 mr_8' onClick={this.handleCancel}>取 消</button>
@@ -343,7 +378,7 @@ class GoodsManage extends React.Component {
           <div className='search_frame mb-3'>
             <label className='font_12'>名称：</label>
             <Input
-              className='w__8 border_1'
+              className='w__6_5 border_1'
               placeholder='请定义播放名称'
               value={this.state.goodsName}
               onChange={e => {this.setState({goodsName: e.target.value})}}
@@ -386,4 +421,10 @@ class GoodsManage extends React.Component {
     );
   }
 }
-export default GoodsManage;
+
+const mapDispatchToProps = (dispatch) => ({});
+const mapStateToProps = (state) => ({
+  userInfo: state,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GoodsManage);
