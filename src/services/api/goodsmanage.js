@@ -24,8 +24,28 @@ function getPlaylist() {
   })
 }
 
+/**
+ * @description 删除商品
+ * @param {id} id
+ * @returns
+ */
+function deleteGoods(id) {
+  return request({
+    url: `/api/commodity/${id}`,
+    method: 'DELETE',
+  })
+}
+
+function deletePlay(id) {
+  return request({
+    url: `/api/play_list/${id}`,
+    method: 'DELETE',
+  })
+}
 
 export {
   getGoodsList,
-  getPlaylist
+  getPlaylist,
+  deleteGoods,
+  deletePlay
 }

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Tabs, Empty, Modal, Input } from 'antd';
+import { Tabs, Empty, Modal, Input, message } from 'antd';
 import { RedoOutlined } from '@ant-design/icons';
 import API from '@/services';
+import img from '@/assets/images/login_bg.png'
 import './index.less';
 const { TabPane } = Tabs;
 
@@ -14,6 +15,9 @@ class GoodsManage extends React.Component {
       tabActive: '1', // 激活的卡片
       isModalVisible: false, // 弹窗
       title: '新增播放列表', // 弹窗标题
+      checkedAll: false,// 全选
+      goodsName: '',// 定义播放名称占位符
+      goodsId: [], // 商品ID
     };
   }
 
@@ -21,13 +25,81 @@ class GoodsManage extends React.Component {
   handleGoodsEdit = () => {};
 
   // 商品删除
-  handleGoodsDelete = () => {};
+  handleGoodsDelete = async (goods) => {
+    let response = null
+    try {
+      response = await API.goodsManageApi.deleteGoods(goods.id)
+    } catch (error) {
+      return false
+    }
+
+    if(response && response.code ===200) {
+      this.getGoodsAndPlaylist()
+    }
+  };
 
   // 播放列表编辑
   handlePlaysEdit = () => {};
 
   // 播放列表删除
-  handlePlaysDelete = () => {};
+  handlePlaysDelete = async (play) => {
+    let response = null
+    try {
+      response = await API.goodsManageApi.deletePlay(play.id)
+    } catch (error) {
+      return false
+    }
+
+    if(response && response.code ===200) {
+      this.getGoodsAndPlaylist()
+    }
+  };
+
+  // 全选回调
+  handleCheckAll = () => {
+    let { checkedAll, goodsList, goodsId } = this.state
+
+    this.setState({checkedAll: !checkedAll}, ()=>{
+      let _goodsList = goodsList.filter(goods => {
+        goods.checked = this.state.checkedAll
+        if(!this.state.goodsId.includes(goods.id)) {
+          goodsId.push(goods.id)
+        }
+        return goods
+      })
+
+      // 清空全选，选中的ID一起清空
+      if(!this.state.checkedAll) {
+        this.state.goodsId = []
+      }
+
+      this.setState({goodsList: _goodsList})
+    })
+  }
+
+  // 单选回调
+  handleSingleCheck = (index) => {
+    let { goodsList, goodsId } = this.state
+    goodsList[index].checked = !goodsList[index].checked
+
+    if(goodsList[index].checked) {
+      goodsId.push(goodsList[index].id)
+    } else {
+      let indexOf = goodsId.indexOf(goodsList[index].id)
+      if(indexOf !== -1) {
+        goodsId.splice(indexOf, 1)
+      }
+    }
+
+    let checkedAll = true
+    goodsList.some(goods => {
+      if(!goods.checked) {
+        checkedAll = false
+        return
+      }
+    })
+    this.setState({ checkedAll, goodsList: this.state.goodsList })
+  }
 
   // Tabs切换
   handleTabChange = (activeKey) => {
@@ -56,7 +128,25 @@ class GoodsManage extends React.Component {
   };
 
   // 弹窗点击确定回调
-  handleOk = () => {
+  handleOk = async () => {
+    let { goodsId, goodsName } = this.state
+    if(!goodsName) {
+      message.warning('请定义播放名称！')
+      return false
+    }
+
+    if(!goodsId.length) {
+      message.warning('请选择要直播的商品！')
+      return false
+    }
+
+    let response = null
+    try {
+      // response = await
+    } catch (error) {
+      message.error((error && error.message) || '新增失败')
+      return false
+    }
     this.setState({
       isModalVisible: false,
     });
@@ -81,6 +171,9 @@ class GoodsManage extends React.Component {
       return false;
     }
 
+    response[0].data.content.forEach(goods => {
+      goods.checked = false
+    })
     if (response && response.length > 0) {
       this.setState({
         goodsList: response[0].data.content,
@@ -91,14 +184,14 @@ class GoodsManage extends React.Component {
 
   // 生命周期
   componentDidMount() {
-    // this.getGoodsAndPlaylist();
+    this.getGoodsAndPlaylist();
   }
 
   render() {
     return (
       <div className='box-border goodsmanage overflow-hidden'>
         <div className='pb-6 pt-4 pl-6 bg-white rounder relative goodsmanage_h_full'>
-          <Tabs onChange={this.handleTabChange} defaultActiveKey='2'>
+          <Tabs onChange={this.handleTabChange} defaultActiveKey='1'>
             <TabPane tab='所有商品' key='1'>
               <div
                 className={[
@@ -131,14 +224,14 @@ class GoodsManage extends React.Component {
                             )}
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span
-                                className='text-center flex-1'
+                                className='text-center flex-1 h-full'
                                 onClick={this.handleGoodsEdit}
                               >
                                 编辑
                               </span>
                               <span
-                                className='text-center flex-1'
-                                onClick={this.handleGoodsDelete}
+                                className='text-center flex-1 h-full'
+                                onClick={e => this.handleGoodsDelete(goods)}
                               >
                                 删除
                               </span>
@@ -146,9 +239,7 @@ class GoodsManage extends React.Component {
                           </div>
                           <div className='font_12 mt-3 px-1'>
                             {/* 测试测试测试测试测试测试测试 */}
-                            <div className='text-overflow'>
-                              测试测试测试测试测试测试测试
-                            </div>
+                            <div className='text-overflow'>{goods.name}</div>
                             <div className='flex items-end overflow-hidden'>
                               <span>💰</span>
                               <span className='scale_8'>{goods.price}</span>
@@ -195,7 +286,7 @@ class GoodsManage extends React.Component {
                               </span>
                               <span
                                 className='text-center flex-1'
-                                onClick={this.handlePlaysDelete}
+                                onClick={e =>this.handlePlaysDelete(play)}
                               >
                                 删除
                               </span>
@@ -244,35 +335,51 @@ class GoodsManage extends React.Component {
           title={this.state.title}
           visible={!this.state.isModalVisible}
           closable={false}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
+          footer={<div>
+            <button className='border border_r_3 font_12 py_2 px_10 mr_8' onClick={this.handleCancel}>取 消</button>
+            <button className='border_r_3 font_12 py_2 px_10 bg-FF8462 text-white' onClick={this.handleOk}>确 认</button>
+          </div>}
         >
           <div className='search_frame mb-3'>
             <label className='font_12'>名称：</label>
-            <Input className='w__8 border_1' placeholder='请定义播放名称' />
+            <Input
+              className='w__8 border_1'
+              placeholder='请定义播放名称'
+              value={this.state.goodsName}
+              onChange={e => {this.setState({goodsName: e.target.value})}}
+            />
           </div>
-          <div className='goods_wrap overflow-hidden'>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            {/* <div className='box-border'> */}
-
-            {/* </div> */}
+          <div className='goods_wrap overflow-hidden font_12'>
+            <div className='goods_wrap_head flex items-center justify-between mb-1'>
+              <div className='goods_image flex items-center w-2/5'>
+                <input type='checkbox' id='goods' checked={this.state.checkedAll} onChange={this.handleCheckAll}/>
+                <label htmlFor='goods' className='ml-1'>商品</label>
+              </div>
+              <div className='goods_name w_135 mx-4'>名称</div>
+              <div className='goods_price flex-1 '>价格</div>
+            </div>
+            <div className='goods_item_h'>
+              {
+                this.state.goodsList.map((goods, index) => {
+                  return(
+                    <div className='flex items-center justify-between mt-2' key={goods.id}>
+                      <div className='flex items-center w-2/5'>
+                        <input type='checkbox' id='goods' onChange={e => {this.handleSingleCheck(index)}} checked={goods.checked} />
+                        {
+                          goods.image? (
+                            <img className='w_h_30 rounded ml-1 overflow-hidden' alt='' src={goods.image[0]}/>
+                          ):(
+                            <video className='w_h_30 rounded ml-1 overflow-hidden' src={goods.video_url}/>
+                          )
+                        }
+                      </div>
+                      <div className='w_135 flex-none mx-4 text-overflow'>{goods.name}</div>
+                      <div className='flex-1'>{goods.price}</div>
+                    </div>
+                  )
+                })
+              }
+            </div>
           </div>
         </Modal>
       </div>
