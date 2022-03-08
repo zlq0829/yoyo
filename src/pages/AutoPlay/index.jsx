@@ -1,6 +1,5 @@
 import React from 'react';
 import { Select, Empty } from 'antd';
-import { AppstoreAddOutlined } from '@ant-design/icons';
 import API from '@/services';
 import './index.less';
 
@@ -47,7 +46,8 @@ class AutoPlay extends React.Component {
       return false
     }
 
-    if(response && response.data.length > 0 > 0) {
+    console.log(response)
+    if(response && response.code ===200) {
       this.setState({
         goods: response.data
       })
@@ -85,7 +85,7 @@ class AutoPlay extends React.Component {
         {/* 左 */}
         <div className='flex-1 rounded bg-white h-full'>
           <div className='border-b text-center mb-3 h_45 line_height_45'>直播列表</div>
-          <div className='mb-3 flex justify-between px-3'>
+          <div className='mb-3 flex justify-between px-3 w_210_'>
             <Select
               defaultActiveFirstOption
               value={this.state.defaultValue}
@@ -95,17 +95,17 @@ class AutoPlay extends React.Component {
               options={this.state.options}
               onChange={this.handleChange}
             />
-            <div className='h_w_32 box-border rounded-full flex-none flex justify-center items-center bg-FF8462 m_l_5 cursor-pointer'>
+            {/* <div className='h_w_32 box-border rounded-full flex-none flex justify-center items-center bg-FF8462 m_l_5 cursor-pointer'>
               <AppstoreAddOutlined />
-            </div>
+            </div> */}
           </div>
           <div className='goods relative box-border pr-4 goods_h'>
             {this.state.goods.length > 0 ? (
               <div className='flex flex-wrap'>
                 {this.state.goods.map((good) => {
                   return (
-                    <div className='flex flex-col goods_item  w_83 ml-4 mb-4 cursor-pointer rounded' onClick={() =>this.handleChangeGoods(good)} key={good.id}>
-                      <img src={good.image[0]} alt='' className=' w_83 rounded' />
+                    <div className='flex flex-col goods_item  w_80 ml-4 mb-4 cursor-pointer rounded' onClick={() =>this.handleChangeGoods(good)} key={good.id}>
+                      <img src={good.image[0]} alt='' className=' w_80 rounded' />
                       <div className='text-overflow font_12 mt-1 px-1'>
                         {good.name}
                       </div>

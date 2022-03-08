@@ -6,6 +6,7 @@ import Login from '@/pages/Login'
 import AutoPlay from '@/pages/AutoPlay'
 import GoodsManage from '@/pages/GoodsManage'
 import Profile from '@/pages/Profile'
+import GoodsInfo from '@/pages/GoodsInfo'
 
 // 登录页组件
 // const Login = React.lazy('@/pages/Login')
@@ -30,9 +31,10 @@ class ContentMain extends React.Component {
           <PrivateRoute exact path='/autoplay' component={AutoPlay}/>
           <PrivateRoute exact path='/goodsmanage' component={GoodsManage}/>
           <PrivateRoute exact path='/profile' component={Profile}/>
+          <PrivateRoute exact path='/goods' component={GoodsInfo}/>
 
           <Redirect exact from='/' to='/autoplay' />
-          <Redirect exact from='*' to='/404' />
+          <Redirect exact from='*' to='/404' />x
         </Switch>
       </div>
     )

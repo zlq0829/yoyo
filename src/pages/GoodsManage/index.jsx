@@ -1,7 +1,6 @@
 import React from 'react';
 import { Tabs, Empty, Modal, Input, message } from 'antd';
 import { connect } from 'react-redux';
-import { normalize } from 'normalizr';
 import { RedoOutlined } from '@ant-design/icons';
 import API from '@/services';
 import './index.less';
@@ -19,6 +18,8 @@ class GoodsManage extends React.Component {
       checkedAll: false,// 全选
       goodsName: '',// 定义播放名称占位符
       goodsId: [], // 商品ID
+      updataOrAdd: false, // 修改播放获新增播放，默认是false
+      playId: '',       // 修改播放item的id
     };
   }
 
@@ -54,33 +55,51 @@ class GoodsManage extends React.Component {
 
     if(response && response.data.length > 0) {
       response.data.forEach(e => {
-        e.checked = true
+        this.state.goodsId.push(e.id)
+        this.state.goodsList.some(goods => {
+          goods.checked = (goods.id === e.id)
+          return (goods.id === e.id)
+        })
       })
-      console.log( response )
+
+      this.setState({
+        goodsList: this.state.goodsList,
+        isModalVisible: true,
+        updataOrAdd: true,
+        checkedAll:  response.data.length ===  this.state.goodsList.length,
+        goodsName: play.name,
+        playId: play.id
+      })
     }
   };
 
   // 播放列表删除
   handlePlaysDelete = async (play) => {
-    let response = null
     try {
-      response = await API.goodsManageApi.deletePlay(play.id)
-      console.log( response )
+      await API.goodsManageApi.deletePlay(play.id)
     } catch (error) {
-      return false
+      console.log(error)
     }
-
-    if(response && response.code ===200) {
-      this.getGoodsAndPlaylist()
-    }
+    // console.log(play)
+    // let response = null
+    // try {
+    //   response = await API.goodsManageApi.deletePlay(play.id)
+    //   console.log( response )
+    // } catch (error) {
+    //   return false
+    // }
+    // console.log(play)
+    // if(response && response.code ===200) {
+    //   this.getGoodsAndPlaylist()
+    // }
   };
 
   // 全选回调
   handleCheckAll = () => {
-    let { checkedAll, goodsList, goodsId } = this.state
-
+    let goodsList,
+      { checkedAll, goodsId } = this.state;
     this.setState({checkedAll: !checkedAll}, ()=>{
-      let _goodsList = goodsList.filter(goods => {
+      goodsList = this.state.goodsList.filter(goods => {
         goods.checked = this.state.checkedAll
         if(!this.state.goodsId.includes(goods.id)) {
           goodsId.push(goods.id)
@@ -93,7 +112,7 @@ class GoodsManage extends React.Component {
         this.state.goodsId = []
       }
 
-      this.setState({goodsList: _goodsList})
+      this.setState({goodsList})
     })
   }
 
@@ -128,15 +147,13 @@ class GoodsManage extends React.Component {
 
   // 新增商品
   handleAddGoods = () => {
-    this.setState({
-      isModalVisible: true,
-      title: '新增商品',
-    });
+
   };
 
   // 新增播放
   handleAddPlays = () => {
     this.setState({
+      updataOrAdd: false,
       isModalVisible: true,
       title: '新增播放',
     });
@@ -149,7 +166,7 @@ class GoodsManage extends React.Component {
 
   // 弹窗点击确定回调
   handleOk = async () => {
-    let { goodsId, goodsName } = this.state
+    let { goodsId, goodsName, updataOrAdd } = this.state
     if(!goodsName) {
       message.warning('请定义播放名称！')
       return false
@@ -164,14 +181,21 @@ class GoodsManage extends React.Component {
     let data = {
       commodity_list: goodsId,
       name: goodsName,
-      user: this.props.userInfo.profile.id
     }
+
     try {
-      response = await API.goodsManageApi.addPlay(data)
+      if(updataOrAdd) {
+        response = await API.goodsManageApi.updataPlayGoods(data, this.state.playId)
+      } else {
+        data.user = this.props.userInfo.profile.id
+        response = await API.goodsManageApi.addPlay(data)
+      }
     } catch (error) {
-      message.error((error && error.message) || '新增失败')
+      message.error((error && error.message) || (updataOrAdd? '修改失败！' : '增加失败！'))
       return false
     }
+
+
     if(response && response.code===200){
       this.handleCancel()
       this.getGoodsAndPlaylist()
@@ -190,7 +214,9 @@ class GoodsManage extends React.Component {
       isModalVisible: false,
       checkedAll: false,
       goodsList,
-      goodsName: ''
+      goodsName: '',
+      goodsId: [],
+      updataOrAdd: false,
     });
   };
 
@@ -225,7 +251,7 @@ class GoodsManage extends React.Component {
   render() {
     return (
       <div className='box-border goodsmanage overflow-hidden'>
-        <div className='pb-6 pt-4 pl-6 bg-white rounder relative goodsmanage_h_full'>
+        <div className='pb-6 pt-4 pl-6 pr-6 bg-white rounder relative goodsmanage_h_full box-border'>
           <Tabs onChange={this.handleTabChange} defaultActiveKey='1'>
             <TabPane tab='所有商品' key='1'>
               <div
@@ -239,7 +265,7 @@ class GoodsManage extends React.Component {
                     {this.state.goodsList.map((goods) => {
                       return (
                         <div
-                          className='flex flex-col goods_item w_83 ml-12 mb-12 cursor-pointer rounded'
+                          className='flex flex-col goods_item w_80 ml-12 mb-12 cursor-pointer rounded'
                           key={goods.id}
                         >
                           <div className='relative goods_item__hover'>
@@ -247,10 +273,10 @@ class GoodsManage extends React.Component {
                               <img
                                 src={goods.image[0]}
                                 alt=''
-                                className='w_83 rounded'
+                                className='w_80 h_80 rounded'
                               />
                             ) : (
-                              <div className='w_83 h_83 '>
+                              <div className='w_80 h_80 '>
                                 <video
                                   src={goods.video_url}
                                   className='w-full, h-full _video rounded'
@@ -303,14 +329,14 @@ class GoodsManage extends React.Component {
                     {this.state.playList.map((play) => {
                       return (
                         <div
-                          className='flex flex-col goods_item w_83 ml-12 mb-12 cursor-pointer rounded'
+                          className='flex flex-col goods_item w_80 ml-12 mb-12 cursor-pointer rounded'
                           key={play.id}
                         >
                           <div className='relative goods_item__hover'>
                             <img
                               src={play.cover_image}
                               alt=''
-                              className='w_83  rounded '
+                              className='w_80 h_80 rounded '
                             />
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span

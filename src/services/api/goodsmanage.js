@@ -74,11 +74,20 @@ function getPlayGoodsList(data) {
   })
 }
 
+function updataPlayGoods(data, id) {
+  return request({
+    url: `/api/play_list/${id}`,
+    method: 'PATCH',
+    data
+  })
+}
+
 export {
   getGoodsList,
   getPlaylist,
   deleteGoods,
   deletePlay,
   addPlay,
-  getPlayGoodsList
+  getPlayGoodsList,
+  updataPlayGoods
 }

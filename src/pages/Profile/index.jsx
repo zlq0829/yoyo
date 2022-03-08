@@ -29,6 +29,11 @@ class Profile extends React.Component {
 
   // 确认修改网名
   handleComfimrResetName = async () => {
+    console.log(this.state.nickNamer)
+    if(!this.state.nickNamer) {
+      message.warn('昵称不能为空字符')
+      return false
+    }
     let response = null;
     let data = {
       avatar: this.state.avatar,
@@ -43,6 +48,7 @@ class Profile extends React.Component {
 
     if(response && response.code === 200 && response.data) {
       auth.setLocal('userInfo', type.toString(response.data))
+      this.setState({resetName: false})
       this.props.handleKeepProfile(response.data)
     }
   };
@@ -160,12 +166,12 @@ class Profile extends React.Component {
                     </div>
                   ) : (
                     <div className='flex items-start'>
-                      <label className='font_15 w_120 color-444 font-semibold mr-4'>
+                      <label className='font_15 w_120 color-444 font-semibold mr-4 flex-none'>
                         用户名
                       </label>
                       <div>
                         <Input
-                          style={{ width: '420px', border: '1px solid #ccc' }}
+                          style={{  width: '420px', border: '1px solid #ccc',  }}
                           value={this.state.nickNamer}
                           onChange={e =>{this.setState({nickNamer: e.target.value})}}
                         />

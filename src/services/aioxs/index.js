@@ -61,7 +61,8 @@ service.interceptors.request.use(
 
     if (
       config.method.toLocaleLowerCase() === 'post' ||
-      config.method.toLocaleLowerCase() === 'put'
+      config.method.toLocaleLowerCase() === 'put' ||
+      config.method.toLocaleLowerCase() === 'patch'
     ) {
       Object.assign(config.data, config.data);
     } else if (
@@ -92,6 +93,7 @@ service.interceptors.response.use(
   },
 
   (err) => {
+    console.log(err)
     hideLoading()
     responseHandle[500]('网络请求失败，请刷新重试')
   }
