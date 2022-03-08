@@ -1,7 +1,9 @@
 import * as profile from './profile'
+import * as login from './login'
 
 const action = {
-  profile
+  profile,
+  login
 }
 
 export default action

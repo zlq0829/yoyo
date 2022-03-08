@@ -28,13 +28,19 @@ export function removeToken() {
 
 
 /**
- * @param {}
+ * @param {string}
  * @returns {}
  */
-export function clearToken() {
-  window.localStorage.removeItem();
+export function removeLocal(key) {
+  window.localStorage.removeItem(key);
 }
 
+/**
+ *
+ */
+export function clearLocal() {
+  window.localStorage.clear()
+}
 /**
  * @param {string} key
  * @returns {any}

@@ -5,8 +5,3 @@ export const addProfile = (function(profile) {
   }
 })
 
-// const profile = {
-//   addProfile
-// }
-
-// export default profile
