@@ -60,7 +60,7 @@ class PasLogin extends React.Component {
           <div className='form_item mb-7'>
             <Form.Item
               name='phoneNum'
-              label={<img src={userIcon} alt='' />}
+              label={<img src={userIcon} alt='' className='sm:block hidden' />}
             >
               <div className='phone_input border-b'>
                 <Input
@@ -78,7 +78,7 @@ class PasLogin extends React.Component {
           <div className='form_item mb-7'>
             <Form.Item
               name='code'
-              label={<img src={eyeIcon} alt='' />}
+              label={<img src={eyeIcon} alt='' className='sm:block hidden' />}
             >
               <div className='phone_input border-b'>
                 <Input.Password

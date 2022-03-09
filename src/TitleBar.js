@@ -1,56 +1,78 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import TitleBar from 'frameless-titlebar'
-import { Popover } from 'antd';
-import utils from '@/utils'
-import action from '@/actions'
-import logo from '@/assets/images/logo.png'
+import TitleBar from 'frameless-titlebar';
+import Popover from '@/components/Popover';
+import utils from '@/utils';
+import action from '@/actions';
+import logo from '@/assets/images/logo.png';
 
-const  { validate, type, auth } = utils
-const { login } = action
-const content = (props) => {
-  console.log(props)
+
+const { auth, main } = utils;
+const { login } = action;
+
+// 读取Electro
+const getCurrentWindow = () => {
+  if (window.isElectron) {
+    const remote = main.getElectronModule('remote');
+    if (remote) {
+      return remote.getCurrentWindow();
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+};
+
+const currentWindow = getCurrentWindow();
+
+const _TitleBar = (props) => {
+  // 管理窗口状态
+  const [maximized, setMaximized] = useState(currentWindow?.isMaximized());
+
+  // 登出，同时清除localStorage、cookie、redux
+  const loginOut = () => {
+    props.handleLoginOut();
+    auth.clearLocal();
+    auth.removeToken();
+  };
+
+  // 双击和点击控制窗口按钮来控制窗口
+  const handleMaximize = () => {
+    setMaximized((maximized) => !maximized);
+  };
+
+  useEffect(() => {
+    if (maximized) {
+      currentWindow?.maximize();
+    } else {
+      currentWindow?.unmaximize();
+    }
+  }, [maximized]);
+
   return (
-    <div className='text-center'>
-      <header className='py-2 cursor-default'>{validate.hidePhoneNum(type.toString(props.props.userInfo.profile.phone_num))}</header>
-      <footer className='py-1 border-t font_12 cursor-default' onClick={props.loginOut}>退 出</footer>
-    </div>
-  )
-}
-
-
-class _TitleBar extends React.Component {
-  loginOut = () => {
-    this.props.handleLoginOut()
-    auth.clearLocal()
-    auth.removeToken()
-  }
-
-
-  render() {
-    console.log( this.props )
-    return (
-      <TitleBar
-        id='title_bar'
-        iconSrc={logo}
-      >
-        {
-          this.props.userInfo.profile.token && (
-            <Popover title={null} content={content(this)} trigger='click'>
-              <img style={{ width: '32px', height: '32px', borderRadius: '100%' }} src={this.props.userInfo.profile.avatar} alt=''/>
-            </Popover>
-          )
-        }
-      </TitleBar>
-    )
-  }
-}
-
+    <TitleBar
+      id="title_bar"
+      iconSrc={logo}
+      currentWindow={currentWindow}
+      platform={process.platform}
+      onClose={() => currentWindow?.close()}
+      onMinimize={() => currentWindow?.minimize()}
+      onMaximize={handleMaximize}
+      onDoubleClick={handleMaximize}
+      maximized={maximized}
+    >
+      {props.userInfo.profile.token && (
+        <Popover profile={props.userInfo} loginOut={loginOut} />
+      )}
+    </TitleBar>
+  );
+};
 
 const mapDispatchToProps = (dispatch) => ({
   handleLoginOut: () => {
-    dispatch(login.clearAll({}))
-  }
+    dispatch(login.clearAll({}));
+  },
 });
 const mapStateToProps = (state) => ({
   userInfo: state,

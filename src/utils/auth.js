@@ -39,7 +39,8 @@ export function removeLocal(key) {
  *
  */
 export function clearLocal() {
-  window.localStorage.clear()
+  console.log('清楚了')
+  window.localStorage.clear();
 }
 /**
  * @param {string} key

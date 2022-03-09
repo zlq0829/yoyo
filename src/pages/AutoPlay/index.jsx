@@ -46,7 +46,6 @@ class AutoPlay extends React.Component {
       return false
     }
 
-    console.log(response)
     if(response && response.code ===200) {
       this.setState({
         goods: response.data

@@ -5,7 +5,7 @@ import {
   ArrowLeftOutlined,
   PlusOutlined,
   SoundOutlined,
-  CheckOutlined
+  // CheckOutlined
 } from '@ant-design/icons';
 import './index.less';
 
