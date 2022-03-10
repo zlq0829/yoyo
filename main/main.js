@@ -1,13 +1,17 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const { spawn, exec } = require('child_process');
+const log = process.env.NODE_ENV === 'development'? console : require('electron-log');
+let workerProcess = null;
+let mainWindow = null;
 
-
+// 环境判断
 function isDev(env) {
   const reg = /^(development|test)$/.test(env);
   return reg;
 }
 
-let mainWindow = null;
+// 创建窗口
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
@@ -38,18 +42,32 @@ function createWindow() {
   return mainWindow;
 }
 
+// 窗口关闭 windows
+function onWindowAllClosed() {
+  mainWindow = null;
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+}
+
+// 销毁播放进程
+function destoryVideoProcess() {
+  const endBatPath = 'end.bat';
+  exec(endBatPath, { cwd: cwd });
+  if (typeof workerProcess !== 'undefined') {
+    workerProcess = null;
+  }
+}
+
 // 关闭窗口回调函数
 function onCloseWindow() {
   mainWindow = null
 }
 
 // 进程调用
-let workerProcess = null;
-let autoLiveFlag = false;
 function launchVideoProcess(flag) {
   if (!workerProcess || flag) {
     let childProcessCallback = (err, stdout, stderr) => {
-      autoLiveFlag = false;
       if (err) {
         log.error('error:', err);
       }
@@ -57,26 +75,21 @@ function launchVideoProcess(flag) {
       log.error('stderr:', stderr);
     };
 
-    log.info(process.env.ENABLE_SERVER_CONSOLE);
     const cmdStr = 'server.exe'; // 本地需要启动的后台服务可执行文件的路径
     if (!!process.env.ENABLE_SERVER_CONSOLE) {
       log.info('spawn');
-      autoLiveFlag = false;
       workerProcess = spawn(cmdStr, [] , { cwd: cwd, detached: true });
     } else {
       log.info('exec');
-      autoLiveFlag = false;
       workerProcess = exec(cmdStr, { cwd: cwd }, childProcessCallback);
     }
     workerProcess.on('close', () => {
       console.log('close!!!!');
       workerProcess = null;
-      autoLiveFlag = false;
     })
     workerProcess.on('exit', () => {
       console.log('exit!!!!');
       workerProcess = null;
-      autoLiveFlag = false;
     })
     workerProcess.on('data', () => {
       log.info(`workerProcess.stdout:${data}`);
@@ -88,7 +101,10 @@ function launchVideoProcess(flag) {
 }
 
 function onReady() {
+  launchVideoProcess()
   createWindow()
 }
 
 app.on('ready', onReady);
+app.on('window-all-closed', onWindowAllClosed);
+app.on('quit', destoryVideoProcess)

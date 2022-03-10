@@ -12,7 +12,7 @@ class AutoPlay extends React.Component {
     // select组件options
     options: [],
     // 商品
-    goods: [],
+    goodsList: [],
     // 横竖切换, 默认是竖屏 true
     reverse: true,
     // 下拉框默认选中第一条
@@ -78,7 +78,7 @@ class AutoPlay extends React.Component {
 
     if (response && response.code === 200) {
       this.setState({
-        goods: response.data,
+        goodsList: response.data,
       });
     }
   }
@@ -86,11 +86,11 @@ class AutoPlay extends React.Component {
   // 通过 ws 连接视频处理服务器
   connectVideoProcess = () => {
     const { localServerWsClient: client } = window;
-    const { localServerUrl, goods } = this.state
+    const { localServerUrl, goodsList } = this.state
     const that = this
 
     if(client) {
-      this.sendGoodsToServe(client, goods)
+      this.sendGoodsToServe(client, goodsList)
     } else {
       const client = new W3CWebSocket(localServerUrl);
       // 用于指定连接失败后的回调函数
@@ -111,7 +111,7 @@ class AutoPlay extends React.Component {
           }
         )
         client.send(Initialize);
-        this.sendGoodsToServe(client, goods)
+        this.sendGoodsToServe(client, goodsList)
         window.localServerWsClient = client;
       }
       // 用于指定连接关闭后的回调函数
@@ -131,8 +131,8 @@ class AutoPlay extends React.Component {
   }
 
   // 连接要直播的内容和信息
-  sendGoodsToServe = (client, goods) => {
-    const data = 'sequence->' + toString(goods);
+  sendGoodsToServe = (client, goodsList) => {
+    const data = 'sequence->' + toString(goodsList);
     client.send(data)
   }
 
@@ -158,7 +158,7 @@ class AutoPlay extends React.Component {
   }
 
   render() {
-    const { options, goods, reverse, defaultValue, loading, isPlay } = this.state
+    const { options, goodsList, reverse, defaultValue, loading, isPlay } = this.state
     return (
       <div className='auto_play flex justify-between h-full overflow-hidden'>
         {/* 左 */}
@@ -181,9 +181,9 @@ class AutoPlay extends React.Component {
             </div> */}
           </div>
           <div className='goods relative box-border pr-4 goods_h'>
-            {goods.length > 0 ? (
+            {goodsList.length > 0 ? (
               <div className='flex flex-wrap'>
-                {goods.map((good) => {
+                {goodsList.map((good) => {
                   return (
                     <div
                       className='flex flex-col goods_item  w_80 ml-4 mb-4 cursor-pointer rounded'
