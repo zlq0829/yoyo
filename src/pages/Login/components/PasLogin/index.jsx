@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import {withRouter} from 'react-router-dom';
 import { Form, Input, Checkbox, message } from 'antd';
 import utils from '@/utils';
 import API from '@/services';
@@ -46,8 +47,10 @@ class PasLogin extends React.Component {
     }
 
     if(response && response.data) {
+      // this.props.history.push('/autoplay') // 放在这里需要点击第二次才可以跳转，所以这里后续需要关注下
       auth.setToken(response.data.token)
       auth.setLocal('userInfo', JSON.stringify(response.data))
+      this.props.history.push('/autoplay')
       this.props.handleKeepProfile(response.data)
     }
   }
@@ -116,9 +119,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(profile.addProfile(data))
   }
 })
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   mapDispatchToProps
-)(PasLogin)
+)(PasLogin))
 
 

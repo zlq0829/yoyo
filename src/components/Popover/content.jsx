@@ -1,5 +1,6 @@
 import utils from '@/utils';
 const { validate, type } = utils;
+
 const content = (props) => {
   const { profile } = props;
   return (

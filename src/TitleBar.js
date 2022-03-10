@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import {withRouter} from 'react-router-dom';
 import { connect } from 'react-redux';
 import TitleBar from 'frameless-titlebar';
 import Popover from '@/components/Popover';
@@ -33,8 +34,9 @@ const _TitleBar = (props) => {
   // 登出，同时清除localStorage、cookie、redux
   const loginOut = () => {
     props.handleLoginOut();
-    auth.clearLocal();
+    auth.removeLocal('userInfo');
     auth.removeToken();
+    props.history.push('/login')
   };
 
   // 双击和点击控制窗口按钮来控制窗口
@@ -78,4 +80,4 @@ const mapStateToProps = (state) => ({
   userInfo: state,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(_TitleBar);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(_TitleBar));
