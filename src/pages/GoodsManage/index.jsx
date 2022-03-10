@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tabs, Empty, Modal, Input, message } from 'antd';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { RedoOutlined } from '@ant-design/icons';
 import API from '@/services';
 import './index.less';
@@ -24,7 +25,9 @@ class GoodsManage extends React.Component {
   }
 
   // 商品编辑
-  handleGoodsEdit = () => {};
+  handleGoodsEdit = (goods) => {
+    this.props.history.push({pathname: `/goods/${goods.id}`, query: {edit: true}})
+  };
 
   // 商品删除
   handleGoodsDelete = async (goods) => {
@@ -75,23 +78,16 @@ class GoodsManage extends React.Component {
 
   // 播放列表删除
   handlePlaysDelete = async (play) => {
+    let response = null
     try {
-      await API.goodsManageApi.deletePlay(play.id)
+      response = await API.goodsManageApi.deletePlay(play.id)
+      console.log( response )
     } catch (error) {
-      console.log(error)
+      return false
     }
-    // console.log(play)
-    // let response = null
-    // try {
-    //   response = await API.goodsManageApi.deletePlay(play.id)
-    //   console.log( response )
-    // } catch (error) {
-    //   return false
-    // }
-    // console.log(play)
-    // if(response && response.code ===200) {
-    //   this.getGoodsAndPlaylist()
-    // }
+    if(response && response.code ===200) {
+      this.getGoodsAndPlaylist()
+    }
   };
 
   // 全选回调
@@ -148,7 +144,8 @@ class GoodsManage extends React.Component {
 
   // 新增商品
   handleAddGoods = () => {
-
+    // this.props.history.push('/goods')
+    this.props.history.push({pathname: '/goods', query: {edit: false}})
   };
 
   // 新增播放
@@ -287,7 +284,7 @@ class GoodsManage extends React.Component {
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span
                                 className='text-center flex-1 h-full'
-                                onClick={this.handleGoodsEdit}
+                                onClick={e => this.handleGoodsEdit(goods)}
                               >
                                 编辑
                               </span>
@@ -454,4 +451,4 @@ const mapStateToProps = (state) => ({
   userInfo: state,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(GoodsManage);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(GoodsManage));
