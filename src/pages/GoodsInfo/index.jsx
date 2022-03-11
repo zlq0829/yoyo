@@ -1,7 +1,6 @@
 import React from 'react';
 import { Radio, Upload, Input, Table, Select, message } from 'antd';
 import {
-  SyncOutlined,
   PlusOutlined,
   UploadOutlined,
   UndoOutlined,
@@ -13,6 +12,7 @@ class GoodsInfo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      fileList:[],
       // 图片
       images: [],
       // tabel数据头
@@ -35,11 +35,17 @@ class GoodsInfo extends React.Component {
         {
           title: '动作标签',
           dataIndex: 'label',
-          render: (defaultLabel) => {
+          render: (defaultLabel, record, i) => {
             return (
               <div className='w-full'>
                 <Select
                   value={defaultLabel}
+                  onChange={(e) => {
+                    this.state.dataSource[i].label = e;
+                    this.setState({
+                      dataSource: this.state.dataSource,
+                    });
+                  }}
                   options={[
                     { label: '开场', value: '开场' },
                     { label: '自然', value: '自然' },
@@ -66,11 +72,17 @@ class GoodsInfo extends React.Component {
         {
           title: '语音调节',
           dataIndex: 'speed',
-          render: (defaultSpeed) => {
+          render: (defaultSpeed, record, i) => {
             return (
               <div className='w-full'>
                 <Select
                   value={defaultSpeed}
+                  onChange={(e) => {
+                    this.state.dataSource[i].speed = e;
+                    this.setState({
+                      dataSource: this.state.dataSource,
+                    });
+                  }}
                   options={[
                     { label: '0.5倍数', value: '0.5' },
                     { label: '0.75倍数', value: '0.75' },
@@ -91,13 +103,13 @@ class GoodsInfo extends React.Component {
           render: () => {
             return (
               <div className='w-full flex items-center justify-center'>
-                <button
-                  className='py-1 px-2 border rounded flex items-center mr-4'
-                  onClick={(e) => this.handleUploadVioce()}
-                >
-                  <UploadOutlined />
-                  <span>上传</span>
-                </button>
+                <Upload>
+                  <div
+                    className='py-1 px-2 border rounded flex items-center mr-4'>
+                    <UploadOutlined />
+                    <span>上传</span>
+                  </div>
+                </Upload>
                 <button
                   className='py-1 px-2 border rounded flex items-center'
                   onClick={(e) => this.handleVioceRecover()}
@@ -118,20 +130,14 @@ class GoodsInfo extends React.Component {
       goodsPrice: '',
       // 商品介绍
       introduce: '',
-      // 路由参数
-      routerProps: {},
+      // 语音合成状态
+      status: ''
     };
   }
 
   // Upload回调
-  handleChange = ({ fileList }) => {
-    const { images } = this.state;
-    fileList.forEach((e) => {
-      if (e?.response && e.response && !images.includes(e.response.data)) {
-        this.state.images.push(e.response.data);
-      }
-    });
-    this.setState({ images: this.state.images });
+  handleChange = async ({ fileList, file }) => {
+    await this.setState({images: fileList})
   };
 
   // 添加商品
@@ -165,6 +171,53 @@ class GoodsInfo extends React.Component {
     }
   };
 
+  // 更新商品
+  handleUpdataGoods = async() => {
+    const { goodsName, goodsPrice, introduce, images, dataSource } = this.state
+
+    if(images.length === 0 || !goodsName || !goodsName || !introduce) {
+      message.warning('请添加商品信息！')
+      return false
+    }
+
+    const data = {
+      tag_list: [],
+      speed_list: [],
+      simple_sentence_id_list: [],
+      image: [],
+      name: goodsName,
+      price: goodsPrice,
+      introduce
+    }
+
+    dataSource.forEach((e, i) => {
+      data.tag_list.push(dataSource[i].label)
+      data.speed_list.push(dataSource[i].speedNum)
+      data.simple_sentence_id_list.push(dataSource[i].sentenceId)
+    })
+    images.forEach(e => {
+      if(e.url && e.status==='done') {
+        data.image.push(e.url)
+      }else {
+        data.image.push(e.response.data)
+      }
+    })
+    console.log(data)
+
+
+    // let response = null
+    // try {
+    //   response = await API.goodsManageApi.addGoods(data)
+    // } catch (error) {
+    //   message.warning(error && error.message || '语音正则合成中，请稍后在做修改！')
+    //   return false
+    // }
+    // console.log(response)
+    // if(response && response.code===200 && response.data) {
+    //   message.success('修改成功！')
+    // }
+  }
+
   //  参数
   data = (file) => {
     const suffix = file.name.slice(file.name.lastIndexOf('.'));
@@ -181,9 +234,16 @@ class GoodsInfo extends React.Component {
   handleVioceRecover = (e) => {};
 
   async componentDidMount() {
-    if(this.props.location.query) {
-      const { word_list: introduce, action_tag_list: label, wav_url_list: wavs, speed_list: speeds } = this.props.location.query
-      const dataSource = []
+    if (this.props.location.query) {
+      const {
+        word_list: introduce,
+        action_tag_list: label,
+        wav_url_list: wavs,
+        speed_list: speeds,
+        simple_sentence_id_list: sentenceId,
+        image,
+      } = this.props.location.query;
+      const dataSource = [];
       label.forEach((e, i) => {
         dataSource.push({
           key: i,
@@ -191,10 +251,23 @@ class GoodsInfo extends React.Component {
           introduce: introduce[i],
           label: label[i],
           voice: wavs[i],
-          speed: speeds[i] + '倍数'
-        })
-      })
-      this.setState({dataSource})
+          speedNum: speeds[i],
+          speed: speeds[i] + '倍数',
+          sentenceId: sentenceId[i],
+        });
+      });
+
+      let images = [];
+      image.forEach((e) => {
+        images.push({ status: 'done', url: e });
+      });
+      this.setState({
+        dataSource,
+        goodsName: this.props.location.query.name,
+        goodsPrice: this.props.location.query.price,
+        introduce: this.props.location.query.introduce,
+        images,
+      });
     }
   }
 
@@ -235,6 +308,8 @@ class GoodsInfo extends React.Component {
                 </div>
                 <div className='upload'>
                   <Upload
+                    fileList={images}
+                    data={this.data}
                     action={`${process.env.REACT_APP_API}/api/common/upload`}
                     listType='picture-card'
                     multiple={true}
@@ -301,12 +376,21 @@ class GoodsInfo extends React.Component {
             >
               取消
             </button>
-            <button
-              className='save_btn foonter_btn py-1 px-8 border rounded-full bg-FF8462 border-color text-white'
-              onClick={this.handleAddGoods}
-            >
-              保存
-            </button>
+            {dataSource.length === 0 ? (
+              <button
+                className='save_btn foonter_btn py-1 px-8 border rounded-full bg-FF8462 border-color text-white'
+                onClick={this.handleAddGoods}
+              >
+                保存
+              </button>
+            ) : (
+              <button
+                className='save_btn foonter_btn py-1 px-8 border rounded-full bg-FF8462 border-color text-white'
+                onClick={this.handleUpdataGoods}
+              >
+                保存
+              </button>
+            )}
           </div>
         </div>
       </div>
