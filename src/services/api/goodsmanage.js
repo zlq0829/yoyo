@@ -62,7 +62,7 @@ function addPlay(data) {
 }
 
 /**
- *
+ * @description 获取播放列表
  * @param {object} data
  * @returns
  */
@@ -74,10 +74,42 @@ function getPlayGoodsList(data) {
   })
 }
 
+/**
+ * @description 更新播放商品
+ * @param {object} data
+ * @param {string} id
+ * @returns
+ */
 function updataPlayGoods(data, id) {
   return request({
     url: `/api/play_list/${id}`,
     method: 'PATCH',
+    data
+  })
+}
+
+/**
+ * @description 敏感词监测
+ * @param {string} data
+ * @returns
+ */
+function checkSensitiveWord(data) {
+  return request({
+    url: '/api/commodity/test_prohibited_words',
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ * @description 添加播放商品
+ * @param {object} data
+ * @returns
+ */
+function addGoods(data) {
+  return request({
+    url: '/api/commodity',
+    method: 'POST',
     data
   })
 }
@@ -89,5 +121,7 @@ export {
   deletePlay,
   addPlay,
   getPlayGoodsList,
-  updataPlayGoods
+  updataPlayGoods,
+  checkSensitiveWord,
+  addGoods
 }

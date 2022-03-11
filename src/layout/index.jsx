@@ -10,8 +10,8 @@ class _Layout extends React.Component {
       <div className="flex-1">
         <Layout className='layout'>
           <Layout.Sider
-            collapsible
-            breakpoint='xs'
+            defaultCollapsed={true}
+            trigger={null}
           >
             <SiderNav />
           </Layout.Sider>

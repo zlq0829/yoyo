@@ -66,11 +66,21 @@ code {
   border-radius: 10px;
 }
 
+// 但行显示
 .text-overflow {
   // width:65px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow:ellipsis;
+}
+
+// 3行显示
+.text-overflow-3 {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical
 }
 
 /*修改自定义标题栏样式*/

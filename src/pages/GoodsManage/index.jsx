@@ -26,7 +26,7 @@ class GoodsManage extends React.Component {
 
   // 商品编辑
   handleGoodsEdit = (goods) => {
-    this.props.history.push({pathname: `/goods/${goods.id}`, query: {edit: true}})
+    this.props.history.push({pathname: `/goods/${goods.id}`, query: goods })
   };
 
   // 商品删除
@@ -144,8 +144,7 @@ class GoodsManage extends React.Component {
 
   // 新增商品
   handleAddGoods = () => {
-    // this.props.history.push('/goods')
-    this.props.history.push({pathname: '/goods', query: {edit: false}})
+    this.props.history.push({pathname: '/goods'})
   };
 
   // 新增播放

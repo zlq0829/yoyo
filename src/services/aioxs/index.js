@@ -32,7 +32,7 @@ const responseHandle = {
     return response.data;
   },
   400: (response) => {
-    message.error(response.data.message);
+    return Promise.reject(response.data.message);
   },
   401: (response) => {
     window.location.href = window.location.origin;
