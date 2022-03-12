@@ -4,6 +4,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   UndoOutlined,
+  LoadingOutlined
 } from '@ant-design/icons';
 import API from '@/services';
 import './index.less';
@@ -100,19 +101,29 @@ class GoodsInfo extends React.Component {
         {
           title: '语音替换',
           dataIndex: 'other',
-          render: () => {
+          render: (text, record, i) => {
+            console.log( record.updateStatus, '105' )
             return (
               <div className='w-full flex items-center justify-center'>
-                <Upload>
+                <Upload
+                  beforeUpload={({file}) => {this.handleUploadBefore(i)}}
+                  onChange={({file}) =>this.handleUpdateVioce(i, file)}
+                  showUploadList={false}
+                  maxCount={1}
+                  data={{preffix:1}}
+                  action={`${process.env.REACT_APP_API}/api/commodity/voice_replace`}
+                  accept='audio/ogg,audio/mp3,audio/wav,audio/m4a,audio/flac'>
                   <div
                     className='py-1 px-2 border rounded flex items-center mr-4'>
-                    <UploadOutlined />
+                    {
+                      record.updateStatus? <LoadingOutlined/> : <UploadOutlined />
+                    }
                     <span>上传</span>
                   </div>
                 </Upload>
                 <button
                   className='py-1 px-2 border rounded flex items-center'
-                  onClick={(e) => this.handleVioceRecover()}
+                  onClick={(e) => this.handleVioceRecover(record.sentenceId)}
                 >
                   <UndoOutlined />
                   <span>复原</span>
@@ -130,8 +141,6 @@ class GoodsInfo extends React.Component {
       goodsPrice: '',
       // 商品介绍
       introduce: '',
-      // 语音合成状态
-      status: ''
     };
   }
 
@@ -227,11 +236,40 @@ class GoodsInfo extends React.Component {
     };
   };
 
-  // 音频上传
-  handleUploadVioce = (e) => {};
+  // 更新音频
+  handleUpdateVioce = (i, file) => {
+    const { dataSource } = this.state
+    const that = this
+    if(file.status === 'done') {
+      dataSource[i].updateStatus = false
+      this.setState({ dataSource: this.state.dataSource });
+      let timeOut = setTimeout(()=>{
+        that.props.history.goBack()
+        clearTimeout(timeOut)
+      }, 1000)
+    }
+  }
+
+  // 上传前
+  handleUploadBefore = (i) => {
+    const { dataSource } = this.state
+    dataSource[i].updateStatus = true
+    this.setState({ dataSource: this.state.dataSource });
+  }
 
   // 音频复原
-  handleVioceRecover = (e) => {};
+  handleVioceRecover = async (id) => {
+    let response = null
+    const data = {
+      simple_id: id
+    }
+    try {
+      response = await API.goodsManageApi.restoreVioce(data)
+    } catch (error) {
+      return false
+    }
+    console.log( response )
+  };
 
   async componentDidMount() {
     if (this.props.location.query) {
@@ -254,6 +292,7 @@ class GoodsInfo extends React.Component {
           speedNum: speeds[i],
           speed: speeds[i] + '倍数',
           sentenceId: sentenceId[i],
+          updateStatus: false,
         });
       });
 

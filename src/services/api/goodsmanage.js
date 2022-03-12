@@ -114,6 +114,14 @@ function addGoods(data) {
   })
 }
 
+function restoreVioce(data) {
+  return request({
+    url: '/api/commodity/vioce_restore',
+    method: 'POST',
+    data
+  })
+}
+
 export {
   getGoodsList,
   getPlaylist,
@@ -123,5 +131,6 @@ export {
   getPlayGoodsList,
   updataPlayGoods,
   checkSensitiveWord,
-  addGoods
+  addGoods,
+  restoreVioce
 }
