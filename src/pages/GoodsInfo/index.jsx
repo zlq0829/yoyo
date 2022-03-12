@@ -13,7 +13,7 @@ class GoodsInfo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fileList:[],
+      fileList: [],
       // 图片
       images: [],
       // tabel数据头
@@ -102,21 +102,20 @@ class GoodsInfo extends React.Component {
           title: '语音替换',
           dataIndex: 'other',
           render: (text, record, i) => {
-            console.log( record.updateStatus, '105' )
             return (
               <div className='w-full flex items-center justify-center'>
                 <Upload
-                  beforeUpload={({file}) => {this.handleUploadBefore(i)}}
-                  onChange={({file}) =>this.handleUpdateVioce(i, file)}
+                  beforeUpload={({ file }) => { this.handleUploadBefore(i) }}
+                  onChange={({ file }) => this.handleUpdateVioce(i, file)}
                   showUploadList={false}
                   maxCount={1}
-                  data={{preffix:1}}
+                  data={{ preffix: 1 }}
                   action={`${process.env.REACT_APP_API}/api/commodity/voice_replace`}
                   accept='audio/ogg,audio/mp3,audio/wav,audio/m4a,audio/flac'>
                   <div
                     className='py-1 px-2 border rounded flex items-center mr-4'>
                     {
-                      record.updateStatus? <LoadingOutlined/> : <UploadOutlined />
+                      record.updateStatus ? <LoadingOutlined /> : <UploadOutlined />
                     }
                     <span>上传</span>
                   </div>
@@ -141,12 +140,14 @@ class GoodsInfo extends React.Component {
       goodsPrice: '',
       // 商品介绍
       introduce: '',
+      // 增加或编辑
+      isAdd: false
     };
   }
 
   // Upload回调
   handleChange = async ({ fileList, file }) => {
-    await this.setState({images: fileList})
+    await this.setState({ images: fileList })
   };
 
   // 添加商品
@@ -159,7 +160,7 @@ class GoodsInfo extends React.Component {
 
     let response = null;
     const data = {
-      image: images,
+      image: images.map(e => { return e.response.data }),
       introduce,
       name: goodsName,
       price: goodsPrice,
@@ -176,15 +177,14 @@ class GoodsInfo extends React.Component {
         this.props.history.goBack();
         clearTimeout(timeOut);
       }, 2000);
-      //
     }
   };
 
   // 更新商品
-  handleUpdataGoods = async() => {
+  handleUpdataGoods = async () => {
     const { goodsName, goodsPrice, introduce, images, dataSource } = this.state
 
-    if(images.length === 0 || !goodsName || !goodsName || !introduce) {
+    if (images.length === 0 || !goodsName || !goodsName || !introduce) {
       message.warning('请添加商品信息！')
       return false
     }
@@ -204,27 +204,26 @@ class GoodsInfo extends React.Component {
       data.speed_list.push(dataSource[i].speedNum)
       data.simple_sentence_id_list.push(dataSource[i].sentenceId)
     })
+
     images.forEach(e => {
-      if(e.url && e.status==='done') {
+      if (e.url && e.status === 'done') {
         data.image.push(e.url)
-      }else {
+      } else {
         data.image.push(e.response.data)
       }
     })
-    console.log(data)
 
-
-    // let response = null
-    // try {
-    //   response = await API.goodsManageApi.addGoods(data)
-    // } catch (error) {
-    //   message.warning(error && error.message || '语音正则合成中，请稍后在做修改！')
-    //   return false
-    // }
-    // console.log(response)
-    // if(response && response.code===200 && response.data) {
-    //   message.success('修改成功！')
-    // }
+    let response = null
+    try {
+      response = await API.goodsManageApi.addGoods(data)
+    } catch (error) {
+      message.warning(error && error.message || '语音正则合成中，请稍后在做修改！')
+      return false
+    }
+    console.log(response)
+    if(response && response.code===200 && response.data) {
+      message.success('修改成功！')
+    }
   }
 
   //  参数
@@ -240,10 +239,10 @@ class GoodsInfo extends React.Component {
   handleUpdateVioce = (i, file) => {
     const { dataSource } = this.state
     const that = this
-    if(file.status === 'done') {
+    if (file.status === 'done') {
       dataSource[i].updateStatus = false
       this.setState({ dataSource: this.state.dataSource });
-      let timeOut = setTimeout(()=>{
+      let timeOut = setTimeout(() => {
         that.props.history.goBack()
         clearTimeout(timeOut)
       }, 1000)
@@ -268,11 +267,11 @@ class GoodsInfo extends React.Component {
     } catch (error) {
       return false
     }
-    console.log( response )
+    console.log(response)
   };
 
   async componentDidMount() {
-    if (this.props.location.query) {
+    if (!this.props.location.query.isAdd) {
       const {
         word_list: introduce,
         action_tag_list: label,
@@ -280,7 +279,10 @@ class GoodsInfo extends React.Component {
         speed_list: speeds,
         simple_sentence_id_list: sentenceId,
         image,
-      } = this.props.location.query;
+        name,
+        price,
+        introduce: introduceTxt
+      } = this.props.location.query.goods;
       const dataSource = [];
       label.forEach((e, i) => {
         dataSource.push({
@@ -302,12 +304,18 @@ class GoodsInfo extends React.Component {
       });
       this.setState({
         dataSource,
-        goodsName: this.props.location.query.name,
-        goodsPrice: this.props.location.query.price,
-        introduce: this.props.location.query.introduce,
+        goodsName: name,
+        goodsPrice: price,
+        introduce: introduceTxt,
         images,
+        isAdd: this.props.location.query.isAdd
       });
+    } else {
+      this.setState({
+        isAdd: this.props.location.query.isAdd
+      })
     }
+
   }
 
   render() {
@@ -318,6 +326,7 @@ class GoodsInfo extends React.Component {
       goodsName,
       goodsPrice,
       introduce,
+      isAdd
     } = this.state;
     const uploadButton = (
       <div>
@@ -396,16 +405,21 @@ class GoodsInfo extends React.Component {
               <div className='ml_156 font_12'>介绍文案以句号为段落结束</div>
             </div>
           </div>
-          <div className='tabel_voice mt-12 ml-3'>
-            {
-              <Table
-                pagination={false}
-                columns={columns}
-                dataSource={dataSource}
-                className='text-center'
-              />
-            }
-          </div>
+          {
+            !isAdd && (
+              <div className='tabel_voice mt-12 ml-3'>
+                {
+                  <Table
+                    pagination={false}
+                    columns={columns}
+                    dataSource={dataSource}
+                    className='text-center'
+                  />
+                }
+              </div>
+            )
+          }
+
           <div className='footer flex justify-center mt-20'>
             <button
               className='cancal_btn foonter_btn py-1 px-8 border rounded-full mr-8'
@@ -415,7 +429,7 @@ class GoodsInfo extends React.Component {
             >
               取消
             </button>
-            {dataSource.length === 0 ? (
+            {isAdd ? (
               <button
                 className='save_btn foonter_btn py-1 px-8 border rounded-full bg-FF8462 border-color text-white'
                 onClick={this.handleAddGoods}

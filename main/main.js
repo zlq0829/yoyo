@@ -4,7 +4,8 @@ const { spawn, exec } = require('child_process');
 const log = process.env.NODE_ENV === 'development'? console : require('electron-log');
 let workerProcess = null;
 let mainWindow = null;
-
+let cwd = path.join(__dirname, '../server')
+log.log(cwd)
 // 环境判断
 function isDev(env) {
   const reg = /^(development|test)$/.test(env);
@@ -16,8 +17,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 720,
-    frame: false,
-    titleBarStyle: 'hidden', // 隐藏边框
+    // frame: false,
+    // titleBarStyle: 'hidden', // 隐藏边框
     center: true,
     webPreferences: {
       nodeIntegration: true,
@@ -33,7 +34,7 @@ function createWindow() {
 
   // 根据环境执行
   if (isDev(process.env.NODE_ENV)) {
-    mainWindow.loadURL(`http://127.0.0.1:7001/`);
+    mainWindow.loadURL(`http://localhost:3002`);
   } else {
     mainWindow.loadURL(`file://${__dirname}/../app.asar.unpacked/index.html`);
   }
@@ -77,10 +78,8 @@ function launchVideoProcess(flag) {
 
     const cmdStr = 'server.exe'; // 本地需要启动的后台服务可执行文件的路径
     if (!!process.env.ENABLE_SERVER_CONSOLE) {
-      log.info('spawn');
       workerProcess = spawn(cmdStr, [] , { cwd: cwd, detached: true });
     } else {
-      log.info('exec');
       workerProcess = exec(cmdStr, { cwd: cwd }, childProcessCallback);
     }
     workerProcess.on('close', () => {
@@ -88,7 +87,6 @@ function launchVideoProcess(flag) {
       workerProcess = null;
     })
     workerProcess.on('exit', () => {
-      console.log('exit!!!!');
       workerProcess = null;
     })
     workerProcess.on('data', () => {

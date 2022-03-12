@@ -24,8 +24,8 @@
     "websocket": "^1.0.34"
   },
   "scripts": {
-    "start": "TAILWIND_MODE=watch craco start",
-    "electron:start": "NODE_ENV=development TAILWIND_MODE=watch electron .",
+    "start": "dotenv -e .env.development craco start",
+    "electron:start": "dotenv -e .env.development electron .",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -84,6 +84,8 @@
     "autoprefixer": "^9.8.8",
     "babel-plugin-import": "^1.13.3",
     "craco-less": "^2.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv-cli": "^5.0.0",
     "electron": "^13.0.1",
     "electron-builder": "^22.14.13",
     "electron-log": "^4.4.6",

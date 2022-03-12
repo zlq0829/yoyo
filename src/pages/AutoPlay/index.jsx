@@ -21,8 +21,6 @@ class AutoPlay extends React.Component {
     loading: false,
     // 播放状态
     isPlay: false,
-    // 波状状态
-    playState: true,
     // ws
     localServerUrl: process.env.REACT_APP_LOCAL_SERVER_URL
   }
@@ -42,12 +40,13 @@ class AutoPlay extends React.Component {
   // 直播 || 关闭
   handleVideoProcess = async () => {
     // 阻止在没有选中商品的情况下播放
-    if(!this.state.playState) {
-      message.warning('请选择商品')
+    if(this.state.goodsList==0) {
+      message.warning('请先选择商品！')
       return
     }
 
     await this.setState({ isPlay: !this.state.isPlay });
+    console.log(this.state.isPlay)
     const { isPlay } = this.state
     if(isPlay) {
       this.connectVideoProcess()
@@ -103,6 +102,7 @@ class AutoPlay extends React.Component {
       }
       // 用于指定连接成功后的回调函数
       client.onopen = ()=>{
+        message.success('连接本地视频服务成功');
         // 背景图和清晰图
         const Initialize = 'start->' + toString(
           {
@@ -132,8 +132,18 @@ class AutoPlay extends React.Component {
 
   // 连接要直播的内容和信息
   sendGoodsToServe = (client, goodsList) => {
-    const data = 'sequence->' + toString(goodsList);
-    client.send(data)
+    console.log(goodsList)
+    let data = goodsList.map((e)=>({
+      action_tag_list: e.action_tag_list,
+      word_list: e.word_list || null,
+      video_url: e.video_url || null,
+      wav_url_list: e.wav_url_list,
+      image: e.image,
+      is_landscape: true,
+      resize: false
+    }))
+    console.log(data)
+    // client.send('sequence->' + toString(data))
   }
 
   async componentDidMount() {
