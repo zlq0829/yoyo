@@ -4,6 +4,7 @@ import UTILS from '@/utils';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const { getToken } = UTILS.auth;
+  
   return (
     <Route
       {...rest}

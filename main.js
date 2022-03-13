@@ -1,17 +1,22 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn, exec } = require('child_process');
-const log = process.env.NODE_ENV === 'development'? console : require('electron-log');
+const log = console;
 let workerProcess = null;
 let mainWindow = null;
-let cwd = path.join(__dirname, '../server')
-log.log(cwd)
+let cwd = path.join(__dirname, 'server')
+
 // 环境判断
 function isDev(env) {
   const reg = /^(development|test)$/.test(env);
   return reg;
 }
 
+if (!isDev(process.env.NODE_ENV)) {
+  cwd = path.join(__dirname, '..', 'server');
+}
+
+log.log(cwd)
 // 创建窗口
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -22,7 +27,7 @@ function createWindow() {
     center: true,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname, '../preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true, // 允許在 Render Process 使用 Remote Module
       contextIsolation: false, // 讓在 preload.js 的定義可以傳遞到 Render Process (React)
       webSecurity: false,
@@ -31,10 +36,9 @@ function createWindow() {
 
   // 设置窗口最小尺寸
   mainWindow.setMinimumSize(1100, 720)
-
   // 根据环境执行
   if (isDev(process.env.NODE_ENV)) {
-    mainWindow.loadURL(`http://localhost:3002`);
+    mainWindow.loadURL(`http://localhost:3000`);
   } else {
     mainWindow.loadURL(`file://${__dirname}/../app.asar.unpacked/index.html`);
   }

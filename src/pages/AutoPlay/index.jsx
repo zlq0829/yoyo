@@ -137,13 +137,13 @@ class AutoPlay extends React.Component {
       action_tag_list: e.action_tag_list,
       word_list: e.word_list || null,
       video_url: e.video_url || null,
+      speed_list: e.speed_list,
       wav_url_list: e.wav_url_list,
       image: e.image,
       is_landscape: true,
       resize: false
     }))
-    console.log(data)
-    // client.send('sequence->' + toString(data))
+    client.send('sequence->' + toString(data))
   }
 
   async componentDidMount() {

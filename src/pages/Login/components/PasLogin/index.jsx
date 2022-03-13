@@ -46,18 +46,15 @@ class PasLogin extends React.Component {
       return false
     }
 
-    if(response && response.data) {
-      // this.props.history.push('/autoplay') // 放在这里需要点击第二次才可以跳转，所以这里后续需要关注下
-      auth.setToken(response.data.token)
-      auth.setLocal('userInfo', JSON.stringify(response.data))
-      this.props.history.push('/autoplay')
-      this.props.handleKeepProfile(response.data)
-    }
+    auth.setToken(response.data.token)
+    auth.setLocal('userInfo', JSON.stringify(response.data))
+    this.props.handleKeepProfile(response.data)
+    this.props.history.push('/')
   }
 
   render() {
     return(
-      <div className="login_input w-80">
+      <div className='login_input w-80'>
         <Form colon={false} name='pasForm' requiredMark={false}>
           {/* 账号框 */}
           <div className='form_item mb-7'>
