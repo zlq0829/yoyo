@@ -22,8 +22,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 720,
-    // frame: false,
-    // titleBarStyle: 'hidden', // 隐藏边框
+    frame: false,
+    titleBarStyle: 'hidden', // 隐藏边框
     center: true,
     webPreferences: {
       nodeIntegration: true,
