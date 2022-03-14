@@ -53,7 +53,7 @@ class PhoneLogin extends React.Component {
   }
 
   render() {
-    console.log( this.props )
+    // console.log( this.props )
     return (
       <div className='login_input w-80'>
         <Form colon={false} name='phoneForm' requiredMark={false} >
@@ -70,7 +70,7 @@ class PhoneLogin extends React.Component {
                   placeholder='请输入手机号码'
                   bordered={false}
                   onChange={e =>{
-                    this.setState({phone: e.target.value})
+                    // this.setState({phone: e.target.value})
                   }}
                   suffix={<button className='_button py-1 px-2.5'>获取验证码</button>}
                 />
@@ -91,7 +91,7 @@ class PhoneLogin extends React.Component {
                   bordered={false}
                   maxLength={6}
                   onChange={e =>{
-                    this.setState({code: e.target.value})
+                    // this.setState({code: e.target.value})
                   }}
                 />
               </div>

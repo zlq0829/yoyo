@@ -80,4 +80,4 @@ const mapStateToProps = (state) => ({
   userInfo: state,
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(_TitleBar));
+export default connect(mapStateToProps, mapDispatchToProps)(_TitleBar);

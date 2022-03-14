@@ -173,7 +173,10 @@ class Profile extends React.Component {
                         <Input
                           style={{  width: '420px', border: '1px solid #ccc',  }}
                           value={this.state.nickNamer}
-                          onChange={e =>{this.setState({nickNamer: e.target.value})}}
+                          onChange={e =>{
+                            // this.setState({nickNamer: e.target.value})
+                          }
+                          }
                         />
                         <p className='mt-6'>
                           <button

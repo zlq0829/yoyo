@@ -56,8 +56,8 @@ const service = Axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config) => {
-    auth.getToken() &&
-      (config.headers.Authorization = 'JWT ' + auth.getToken());
+    auth.getLocal('token') &&
+      (config.headers.Authorization = 'JWT ' + auth.getLocal('token'));
 
     if (
       config.method.toLocaleLowerCase() === 'post' ||

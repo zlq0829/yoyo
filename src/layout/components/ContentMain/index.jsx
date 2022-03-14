@@ -1,30 +1,30 @@
-import React from 'react'
-import { Switch, Redirect } from 'react-router-dom'
-import PrivateRoute from '@/components/PrivateRoute'
-import Login from '@/pages/Login'
-import AutoPlay from '@/pages/AutoPlay'
-import GoodsManage from '@/pages/GoodsManage'
-import Profile from '@/pages/Profile'
-import GoodsInfo from '@/pages/GoodsInfo'
+import React from 'react';
+import { Switch, Redirect, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
+const AutoPlay = React.lazy(() => import('@/pages/AutoPlay'));
+const GoodsManage = React.lazy(() => import('@/pages/GoodsManage'));
+const Profile = React.lazy(() => import('@/pages/Profile'));
+const GoodsInfo = React.lazy(() => import('@/pages/GoodsInfo'));
 
-
-class ContentMain extends React.Component {
-  render() {
-    return (
-      <div style={{padding: '15px', position: 'relative' , height: '100%'}}>
-        <Switch>
-          <PrivateRoute exact path='/login' component={Login}/>
-
-          <PrivateRoute exact path='/autoplay' component={AutoPlay}/>
-          <PrivateRoute exact path='/goodsmanage' component={GoodsManage}/>
-          <PrivateRoute exact path='/profile' component={Profile}/>
-          <PrivateRoute path='/goods/:id?' component={GoodsInfo}/>
-
-          <Redirect exact from='/' to='/autoplay' />
-        </Switch>
-      </div>
-    )
-  }
+function ContentMain(props) {
+  const { token } = props;
+  return (
+    <div style={{ padding: '15px', position: 'relative', height: '100%' }}>
+      <Switch>
+        <Route path='/autoplay' component={AutoPlay} />
+        <Route path='/goodsmanage' component={GoodsManage} />
+        <Route path='/profil' component={Profile} />
+        <Route path='/goods/:id?' component={GoodsInfo} />
+        <Redirect from='/' to={ token? '/autoplay' : '/login'} />
+        {
+          !token && <Redirect to='/login'/>
+        }
+      </Switch>
+    </div>
+  );
 }
 
-export default ContentMain
+const mapStateToProps = (state) => ({
+  token: state.profile.token,
+});
+export default connect(mapStateToProps)(ContentMain);

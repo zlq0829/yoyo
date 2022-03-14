@@ -1,21 +1,27 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { Route, Switch } from 'react-router-dom';
-import Login from '@/pages/Login';
-import Layout from '@/layout';
-import PrivateRoute from '@/components/PrivateRoute';
+import React, { Suspense } from 'react';
+import { connect } from 'react-redux';
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.less';
+const Login = React.lazy(() => import('@/pages/Login'));
+const Layout = React.lazy(() => import('@/layout'));
 
-function App() {
-  const queryClient = new QueryClient();
+function App(props) {
+  const { token } = props;
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <Switch>
-        <Route path='/login' component={Login} />
-        <PrivateRoute path='/' component={Layout}/>
-      </Switch>
-    </QueryClientProvider>
+    <Suspense fallback={<div style={{ textAlign: 'center' }}>加载中...</div>}>
+      <HashRouter>
+        <Switch>
+          <Route path='/login' component={Login} />
+          <Route path='/' component={Layout}/>
+        </Switch>
+      </HashRouter>
+    </Suspense>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  token: state.profile.token,
+});
+
+export default connect(mapStateToProps)(App);

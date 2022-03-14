@@ -54,5 +54,5 @@ export function getLocal(key) {
  * @returns {any}
  */
 export function setLocal(key, data) {
-  window.localStorage.setItem(key, data);
+  window.localStorage.setItem(key , data);
 }

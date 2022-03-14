@@ -1,26 +1,33 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Layout } from 'antd';
-import SiderNav from './components/SiderNav'
-import ContentMain from './components/ContentMain'
+import { Redirect } from 'react-router-dom';
 import './index.less';
+const SiderNav = React.lazy(()=>import('./components/SiderNav'))
+const ContentMain = React.lazy(()=>import('./components/ContentMain'))
 
-class _Layout extends React.Component {
-  render() {
-    return (
-      <div className="flex-1">
-        <Layout className='layout'>
-          <Layout.Sider
-            defaultCollapsed={true}
-            trigger={null}
-          >
-            <SiderNav />
-          </Layout.Sider>
-          <Layout>
-            <ContentMain />
-          </Layout>
-        </Layout>
-      </div>
-    );
+
+
+function _Layout(props) {
+  const { token } = props;
+  if(!token) {
+    return <Redirect to='/login'/>
   }
-};
-export default _Layout;
+  return (
+    <div className='flex-1'>
+      <Layout className='layout'>
+        <Layout.Sider defaultCollapsed={true} trigger={null}>
+          <SiderNav />
+        </Layout.Sider>
+        <Layout>
+          <ContentMain />
+        </Layout>
+      </Layout>
+    </div>
+  );
+}
+
+const mapStateToProps = (state) => ({
+  token: state.profile.token,
+});
+export default connect(mapStateToProps)(_Layout);
