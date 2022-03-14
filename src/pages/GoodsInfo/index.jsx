@@ -153,7 +153,7 @@ class GoodsInfo extends React.Component {
   // 添加商品
   handleAddGoods = async () => {
     const { images, introduce, goodsName, goodsPrice } = this.state;
-    if (images.length === 0 || !introduce || !goodsName || !goodsPrice) {
+    if ((images.length === 0) || (!introduce || !goodsName || !goodsPrice)) {
       message.warning('请添加完整的商品信息！');
       return false;
     }
@@ -184,7 +184,7 @@ class GoodsInfo extends React.Component {
   handleUpdataGoods = async () => {
     const { goodsName, goodsPrice, introduce, images, dataSource } = this.state
 
-    if (images.length === 0 || !goodsName || !goodsName || !introduce) {
+    if ((images.length === 0) || (!goodsName || !goodsName || !introduce)) {
       message.warning('请添加商品信息！')
       return false
     }
@@ -217,10 +217,9 @@ class GoodsInfo extends React.Component {
     try {
       response = await API.goodsManageApi.addGoods(data)
     } catch (error) {
-      message.warning(error && error.message || '语音正则合成中，请稍后在做修改！')
+      message.warning((error && error.message) || '语音正则合成中，请稍后在做修改！')
       return false
     }
-    console.log(response)
     if(response && response.code===200 && response.data) {
       message.success('修改成功！')
     }
@@ -267,7 +266,6 @@ class GoodsInfo extends React.Component {
     } catch (error) {
       return false
     }
-    console.log(response)
   };
 
   async componentDidMount() {

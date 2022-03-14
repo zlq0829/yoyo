@@ -40,7 +40,7 @@ class AutoPlay extends React.Component {
   // 直播 || 关闭
   handleVideoProcess = async () => {
     // 阻止在没有选中商品的情况下播放
-    if(this.state.goodsList==0) {
+    if(this.state.goodsList === 0) {
       message.warning('请先选择商品！')
       return
     }

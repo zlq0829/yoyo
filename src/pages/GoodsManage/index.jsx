@@ -103,10 +103,6 @@ class GoodsManage extends React.Component {
         return goods
       })
 
-      // 清空全选，选中的ID一起清空
-      // if(!this.state.checkedAll) {
-      //   this.state.goodsId = []
-      // }
       this.setState({
         goodsList: this.state.checkedAll? []: goodsList
       })

@@ -2,12 +2,12 @@ import utils from '@/utils';
 const { validate, type } = utils;
 
 const content = (props) => {
-  const { profile } = props;
+  const { userInfo } = props;
   return (
     <div className='text-center'>
       <header className='py-2 cursor-default'>
         {validate.hidePhoneNum(
-          type.toString(profile.profile.phone_num)
+          type.toString(userInfo.phone_num)
         )}
       </header>
       <footer

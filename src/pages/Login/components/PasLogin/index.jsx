@@ -10,13 +10,15 @@ import eyeIcon from '@/assets/icons/eye_icon.png';
 
 const { auth, validate } = utils;
 const { profile } = action;
+const accountCache = auth.getLocal('accountCache') && JSON.parse(auth.getLocal('accountCache'))
+const TokenKey = 'token'
 
 const Login = (props) => {
   const { token } = props;
-  const [account, setAccount] = useState();
-  const [password, setPassword] = useState();
+  const [account, setAccount] = useState(accountCache?.account);
+  const [password, setPassword] = useState(accountCache?.password);
   const [checked, setChecked] = useState(true);
-  const TokenKey = 'token'
+
 
   // 输入账号
   const handleAccountChange = (e) => {
@@ -59,7 +61,7 @@ const Login = (props) => {
 
   // 是否保存账号密码
   useEffect(()=>{
-    if(checked && auth.validPhone(account)) {
+    if(checked && validate.validPhone(account)) {
       auth.setLocal('accountCache', JSON.stringify({ account, password }));
     }
   }, [checked, account, password])

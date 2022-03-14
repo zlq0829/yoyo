@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {withRouter} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import TitleBar from 'frameless-titlebar';
 import Popover from '@/components/Popover';
@@ -25,18 +25,21 @@ const getCurrentWindow = () => {
   }
 };
 
+// 当前窗口
 const currentWindow = getCurrentWindow();
 
-const _TitleBar = (props) => {
+function Titlebar(props) {
+  const { userInfo, handleLoginOut, history } = props
+
   // 管理窗口状态
   const [maximized, setMaximized] = useState(currentWindow?.isMaximized());
 
-  // 登出，同时清除localStorage、cookie、redux
+  // 登出，同时清除localStorage、redux
   const loginOut = () => {
-    props.handleLoginOut();
+    handleLoginOut();
     auth.removeLocal('userInfo');
-    auth.removeToken();
-    props.history.push('/login')
+    auth.removeLocal('token');
+    history.push('/login')
   };
 
   // 双击和点击控制窗口按钮来控制窗口
@@ -64,8 +67,8 @@ const _TitleBar = (props) => {
       onDoubleClick={handleMaximize}
       maximized={maximized}
     >
-      {props.userInfo.profile.token && (
-        <Popover profile={props.userInfo} loginOut={loginOut} />
+      {userInfo.token && (
+        <Popover userInfo={userInfo} loginOut={loginOut} />
       )}
     </TitleBar>
   );
@@ -77,7 +80,7 @@ const mapDispatchToProps = (dispatch) => ({
   },
 });
 const mapStateToProps = (state) => ({
-  userInfo: state,
+  userInfo: state.profile,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(_TitleBar);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Titlebar))

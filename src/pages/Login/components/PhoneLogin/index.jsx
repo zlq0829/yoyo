@@ -30,9 +30,8 @@ class PhoneLogin extends React.Component {
     }
     try {
       response = await API.loginApi.loginByValidCode(data)
-      console.log(response)
     } catch (error) {
-      // message.error((error && error.message) || '登陆失败')
+      message.error((error && error.message) || '登陆失败')
       return false
     }
   }

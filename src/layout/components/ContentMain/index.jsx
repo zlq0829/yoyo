@@ -11,10 +11,10 @@ function ContentMain(props) {
   return (
     <div style={{ padding: '15px', position: 'relative', height: '100%' }}>
       <Switch>
-        <Route path='/autoplay' component={AutoPlay} />
-        <Route path='/goodsmanage' component={GoodsManage} />
-        <Route path='/profil' component={Profile} />
-        <Route path='/goods/:id?' component={GoodsInfo} />
+        <Route exact path='/autoplay' component={AutoPlay} />
+        <Route exact path='/goodsmanage' component={GoodsManage} />
+        <Route exact path='/profile' component={Profile} />
+        <Route exact path='/goods/:id?' component={GoodsInfo} />
         <Redirect from='/' to={ token? '/autoplay' : '/login'} />
         {
           !token && <Redirect to='/login'/>

@@ -1,16 +1,15 @@
 import React, { Suspense } from 'react';
-import { connect } from 'react-redux';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import './App.less';
 const Login = React.lazy(() => import('@/pages/Login'));
 const Layout = React.lazy(() => import('@/layout'));
+const TitleBar = React.lazy(()=>import('./TitleBar'))
 
-function App(props) {
-  const { token } = props;
-
+function App() {
   return (
     <Suspense fallback={<div style={{ textAlign: 'center' }}>加载中...</div>}>
       <HashRouter>
+        <TitleBar />
         <Switch>
           <Route path='/login' component={Login} />
           <Route path='/' component={Layout}/>
@@ -20,8 +19,6 @@ function App(props) {
   );
 }
 
-const mapStateToProps = (state) => ({
-  token: state.profile.token,
-});
 
-export default connect(mapStateToProps)(App);
+
+export default App;
