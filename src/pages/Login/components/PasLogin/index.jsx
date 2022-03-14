@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { Form, Input, Checkbox, message } from 'antd';
@@ -17,27 +17,27 @@ const Login = (props) => {
   const [password, setPassword] = useState();
   const [checked, setChecked] = useState(true);
   const TokenKey = 'token'
+
+  // 输入账号
   const handleAccountChange = (e) => {
     setAccount((account) => e.target.value);
   }
 
+  // 输入密码
   const handlePasswordChange = (e) => {
     setPassword((password) => e.target.value);
   }
 
+  // 修改多选框
   const handleCheckedChange = (e) => {
     setChecked((checked) => e.target.checked)
   }
 
+  // 提交
   const handleSubmit = async () => {
     if (!validate.validPhone(account)) {
       message.error('账号格式不正确，请重新输入');
       return false;
-    }
-
-    // 勾选☑️记住密码，本地保存
-    if (checked) {
-      auth.setLocal('accountCache', JSON.stringify({ account, password }));
     }
 
     let response = null;
@@ -54,8 +54,15 @@ const Login = (props) => {
 
     auth.setLocal(TokenKey, response.data.token);
     auth.setLocal('userInfo', JSON.stringify(response.data));
-    props.handleKeepProfile(response.data);
+    props.handleProfile(response.data);
   };
+
+  // 是否保存账号密码
+  useEffect(()=>{
+    if(checked && auth.validPhone(account)) {
+      auth.setLocal('accountCache', JSON.stringify({ account, password }));
+    }
+  }, [checked, account, password])
 
   if (token) {
     return <Redirect to='/' />;
@@ -128,7 +135,7 @@ const mapStateToProps = (state) => ({
   token: state.profile.token,
 });
 const mapDispatchToProps = (dispatch) => ({
-  handleKeepProfile: (data) => {
+  handleProfile: (data) => {
     dispatch(profile.addProfile(data));
   },
 });

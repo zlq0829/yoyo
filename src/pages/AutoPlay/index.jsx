@@ -55,9 +55,6 @@ class AutoPlay extends React.Component {
     }
   }
 
-  // 选中商品
-  handleChangeGoods = (item) => {};
-
   // 获取商品列表
   getGoodsList = async (id) => {
     let response = null;
