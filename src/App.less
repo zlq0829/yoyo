@@ -83,6 +83,21 @@ code {
   -webkit-box-orient: vertical
 }
 
+// 去除通过tab切换出现的边框线
+button:focus {
+  outline: 0 !important;
+}
+
+// 清除input框自动补全出现的背景色
+input:-webkit-autofill {
+  box-shadow:0 0 0 1000px white inset !important;
+}
+input:-internal-autofill-previewed,
+  input:-internal-autofill-selected {
+  -webkit-text-fill-color: #333 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 /*修改自定义标题栏样式*/
 .style_Bar__nNJjZ {
   flex-shrink: none;
@@ -109,3 +124,4 @@ code {
 .ant-popover-inner {
   border-radius: 8px
 }
+

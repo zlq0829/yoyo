@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { Form, Input, Checkbox, message } from 'antd';
+import { Form, Input, Checkbox, message, Button } from 'antd';
 import utils from '@/utils';
 import API from '@/services';
 import action from '@/actions';
@@ -10,35 +10,24 @@ import eyeIcon from '@/assets/icons/eye_icon.png';
 
 const { auth, validate } = utils;
 const { profile } = action;
-const accountCache = auth.getLocal('accountCache') && JSON.parse(auth.getLocal('accountCache'))
-const TokenKey = 'token'
+const accountCache =
+  auth.getLocal('accountCache') && JSON.parse(auth.getLocal('accountCache'));
+const TokenKey = 'token';
 
 const Login = (props) => {
   const { token } = props;
   const [account, setAccount] = useState(accountCache?.account);
   const [password, setPassword] = useState(accountCache?.password);
   const [checked, setChecked] = useState(true);
-
-
-  // 输入账号
-  const handleAccountChange = (e) => {
-    setAccount((account) => e.target.value);
-  }
-
-  // 输入密码
-  const handlePasswordChange = (e) => {
-    setPassword((password) => e.target.value);
-  }
-
-  // 修改多选框
-  const handleCheckedChange = (e) => {
-    setChecked((checked) => e.target.checked)
-  }
+  const [warnings, setWarnings] = useState();
 
   // 提交
   const handleSubmit = async () => {
     if (!validate.validPhone(account)) {
-      message.error('账号格式不正确，请重新输入');
+      setWarnings('账号格式不正确，请重新输入')
+      return false;
+    } else if (!password) {
+      setWarnings('输入密码')
       return false;
     }
 
@@ -60,20 +49,24 @@ const Login = (props) => {
   };
 
   // 是否保存账号密码
-  useEffect(()=>{
-    if(checked && validate.validPhone(account)) {
+  useEffect(() => {
+    if (checked && validate.validPhone(account)) {
       auth.setLocal('accountCache', JSON.stringify({ account, password }));
     }
-  }, [checked, account, password])
+  }, [checked, account, password]);
 
   if (token) {
     return <Redirect to='/' />;
   }
 
   return (
-    <div className='login_input w-80'>
-      <Form colon={false} name='pasForm' requiredMark={false}>
-        {/* 账号框 */}
+    <div className='login_input w-80 relative'>
+      <Form
+        colon={false}
+        name='pasForm'
+        requiredMark={false}
+        onFinish={handleSubmit}
+      >
         <div className='form_item mb-7'>
           <Form.Item
             name='phoneNum'
@@ -85,13 +78,12 @@ const Login = (props) => {
                 maxLength={11}
                 placeholder='请输入账号'
                 bordered={false}
-                onChange={(e) => { handleAccountChange(e)}}
+                onChange={(e) => setAccount(() => e.target.value)}
               />
             </div>
           </Form.Item>
         </div>
 
-        {/* 密码框 */}
         <div className='form_item mb-7'>
           <Form.Item
             name='code'
@@ -103,18 +95,17 @@ const Login = (props) => {
                 placeholder='请输入密码'
                 bordered={false}
                 maxLength={6}
-                onChange={(e) => { handlePasswordChange(e)}}
+                onChange={(e) => setPassword(() => e.target.value)}
               />
             </div>
           </Form.Item>
         </div>
 
-        {/* 单选按钮 && 忘记密码 */}
         <div className='warm_texttext-gray-400 mb-7 flex justify-between items-center'>
           <div>
             <Checkbox
               defaultChecked={checked}
-              onChange={(e) => {handleCheckedChange(e)}}
+              onChange={(e) => setChecked(() => e.target.checked)}
             >
               记住密码
             </Checkbox>
@@ -122,13 +113,11 @@ const Login = (props) => {
           <div className='font_14 color-FF8462 cursor-pointer'>忘记密码？</div>
         </div>
 
-        {/* 按钮 */}
-        <div className='w-full' onClick={handleSubmit}>
-          <button className='ant-button w-full rounded-full' type='button'>
-            登 录
-          </button>
-        </div>
+        <Form.Item>
+          <button type='submit' className='w-full  py-2 bg-FF8462 rounded-full text-white'>登 录</button>
+        </Form.Item>
       </Form>
+      <div className='absolute top-30 font_12'>{warnings}</div>
     </div>
   );
 };
