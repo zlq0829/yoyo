@@ -34,6 +34,7 @@ function loginByPassword(data) {
   return request({
     url: '/api/auth/pwd_sign_in',
     method: 'post',
+    needLoading: false,
     data
   });
 }

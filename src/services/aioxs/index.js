@@ -7,6 +7,7 @@ import UTILS from '@/utils'
 const { auth, validate } = UTILS
 
 // 加载动效，效缓解用户的焦虑。
+let needLoading = false
 let requestCount = 0;
 function startLoading() {
   if (requestCount === 0) {
@@ -38,10 +39,7 @@ const responseHandle = {
     window.location.href = window.location.origin;
   },
   500: (error) => {
-    console.log(error)
-    if(validate.isString(error)) {
-      message.error(error);
-    }
+    return Promise.reject()
   },
   default: (response) => {
     return Promise.reject(response);
@@ -55,7 +53,8 @@ const service = Axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config) => {
+  ( config ) => {
+    needLoading = config.needLoading
     auth.getLocal('token') &&
       (config.headers.Authorization = 'JWT ' + auth.getLocal('token'));
 
@@ -74,28 +73,32 @@ service.interceptors.request.use(
       message.error(`${config.method}不是有效的方法`);
       return false;
     }
+    if( needLoading ) {
+      startLoading()
+    }
 
-    startLoading()
     return config;
   },
 
-  (err) => {
-    hideLoading()
-    return Promise.reject(err);
+  ( err )  => {
+    Promise.reject(err)
   }
 );
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response) => {
-    hideLoading()
+  ( response ) => {
+    if( needLoading ) {
+      hideLoading()
+    }
     return responseHandle[response.data.code || 'default'](response);
   },
 
-  (err) => {
-    console.log(err)
-    hideLoading()
-    responseHandle[500]('网络请求失败，请刷新重试')
+  ( err ) => {
+    if( needLoading ) {
+      hideLoading()
+    }
+    return responseHandle[500]('网络请求失败，请重试')
   }
 );
 

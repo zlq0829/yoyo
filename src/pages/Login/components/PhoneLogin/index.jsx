@@ -43,17 +43,15 @@ const PhoneLogin = (props) => {
     // 首次获取验证码状态
     if(!initTime) { setIntTime(true) }
 
-    let res = null;
     const data = {
       phone_num: phone,
       sms_use: 'login',
     };
     try {
-      res = await API.loginApi.getValidCode(data);
+      await API.loginApi.getValidCode(data);
     } catch (error) {
       return false;
     }
-    console.log(res);
   };
 
   // 登录事件
@@ -69,6 +67,7 @@ const PhoneLogin = (props) => {
     } catch (error) {
       return false;
     }
+
   };
 
   // 表单提交事件
