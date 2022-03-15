@@ -136,7 +136,11 @@ const PhoneLogin = (props) => {
         </div>
       </div>
 
-      <div className='yoyo-btn w-full mt-20'>
+      <div className='warm_text text-xs text-gray-400 text-center my-7'>
+        *未注册手机将默认注册新账户
+      </div>
+
+      <div className='yoyo-btn w-full'>
         <button
           className='w-full bg-FF8462 py-2 rounded-full text-white'
           onClick={handleSubmit}
