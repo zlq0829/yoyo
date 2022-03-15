@@ -3,7 +3,8 @@ import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { Select, Empty, message } from 'antd';
 import utils from '@/utils'
 import API from '@/services';
-import defaultBgImage from '@/assets/images/background_image_default.jpg';
+import defaultBgImage from '@/assets/images/backgroundImg.jpg';
+import yoyo from '@/assets/images/character_model_yoyo.png'
 import './index.less';
 
 const {type: { toString }} = utils
@@ -20,7 +21,7 @@ class AutoPlay extends React.Component {
     // 下拉框loading
     loading: false,
     // 播放状态
-    isPlay: false,
+    isPlay: localStorage.getItem('playStatus') || false,
     // ws
     localServerUrl: process.env.REACT_APP_LOCAL_SERVER_URL
   }
@@ -45,14 +46,16 @@ class AutoPlay extends React.Component {
       return
     }
 
-    await this.setState({ isPlay: !this.state.isPlay });
-    console.log(this.state.isPlay)
-    const { isPlay } = this.state
-    if(isPlay) {
-      this.connectVideoProcess()
-    } else {
-      this.disConnectVideoProcess()
-    }
+    const that = this
+    this.setState({ isPlay: !this.state.isPlay }, ()=>{
+      localStorage.setItem('playStatus', this.state.isPlay)
+      const { isPlay } = this.state
+      if(isPlay) {
+        that.connectVideoProcess()
+      } else {
+        this.disConnectVideoProcess()
+      }
+    });
   }
 
   // 获取商品列表
@@ -84,11 +87,26 @@ class AutoPlay extends React.Component {
     const { localServerWsClient: client } = window;
     const { localServerUrl, goodsList } = this.state
     const that = this
+    let bg = `../build${defaultBgImage}`
+    if(process.env.NODE_ENV !== 'development') {
+      bg = `../app.asar.unpacked${defaultBgImage}`
+    }
+    console.log(bg)
+
+    // 背景图 和 清晰图
+    const Initialize = 'start->' + toString(
+      {
+        bg,
+        clarity: ' MEDIUM'
+      }
+    )
 
     if(client) {
+      client.send(Initialize);
       this.sendGoodsToServe(client, goodsList)
     } else {
       const client = new W3CWebSocket(localServerUrl);
+      
       // 用于指定连接失败后的回调函数
       client.onerror = (error)=>{
         message.info({
@@ -97,16 +115,11 @@ class AutoPlay extends React.Component {
           content: '服务连接失败，请检查网路！'
         })
       }
-      // 用于指定连接成功后的回调函数
+
+      // 用于指定连接成功后的回调函数y
       client.onopen = ()=>{
         message.success('连接本地视频服务成功');
-        // 背景图和清晰图
-        const Initialize = 'start->' + toString(
-          {
-            bg: defaultBgImage,
-            clarity: ' MEDIUM'
-          }
-        )
+
         client.send(Initialize);
         this.sendGoodsToServe(client, goodsList)
         window.localServerWsClient = client;
@@ -129,7 +142,6 @@ class AutoPlay extends React.Component {
 
   // 连接要直播的内容和信息
   sendGoodsToServe = (client, goodsList) => {
-    console.log(goodsList)
     let data = goodsList.map((e)=>({
       action_tag_list: e.action_tag_list,
       word_list: e.word_list || null,
@@ -183,9 +195,7 @@ class AutoPlay extends React.Component {
               options={options}
               onChange={this.handleChange}
             />
-            {/* <div className='h_w_32 box-border rounded-full flex-none flex justify-center items-center bg-FF8462 m_l_5 cursor-pointer'>
-              <AppstoreAddOutlined />
-            </div> */}
+
           </div>
           <div className='goods relative box-border pr-4 goods_h'>
             {goodsList.length > 0 ? (
@@ -240,12 +250,15 @@ class AutoPlay extends React.Component {
             ) : (
               <div className='play_window w-full h_268 rounded' />
             )}
-            <div
+            <div className='absolute top_240 -left_40 w__7 overflow-hidden'>
+              <img src={yoyo}/>
+            </div>
+            {/* <div
               className='font_14 color_FF8462 bg-001529 w_50 text-center absolute right-0 top-2 rounded-l cursor-pointer'
               onClick={this.handleReverse}
             >
               {reverse ? '横屏' : '竖屏'}
-            </div>
+            </div> */}
           </div>
           <div className='play_contron h_80 rounded bg-white mt-4 flex justify-center items-center'>
             <button className='bg-FF8462 px-6 py-2 rounded-full text-white' onClick={this.handleVideoProcess}>
