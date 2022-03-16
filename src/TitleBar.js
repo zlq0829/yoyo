@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import TitleBar from 'frameless-titlebar';
 import Popover from '@/components/Popover';
@@ -9,7 +9,7 @@ import logo from '@/assets/images/logo.png';
 
 
 const { auth, main } = utils;
-const { login } = action;
+const { login, play } = action;
 
 // 读取Electro
 const getCurrentWindow = () => {
@@ -29,23 +29,29 @@ const getCurrentWindow = () => {
 const currentWindow = getCurrentWindow();
 
 function Titlebar(props) {
-  const { userInfo, handleLoginOut, history } = props
+  const { userInfo, handleLoginOut, handlePlay, token } = props
 
   // 管理窗口状态
   const [maximized, setMaximized] = useState(currentWindow?.isMaximized());
-
-  // 登出，同时清除localStorage、redux
-  const loginOut = () => {
-    handleLoginOut();
-    auth.removeLocal('userInfo');
-    auth.removeLocal('token');
-    history.push('/login')
-  };
 
   // 双击和点击控制窗口按钮来控制窗口
   const handleMaximize = () => {
     setMaximized((maximized) => !maximized);
   };
+
+  // 退出
+  const loginOut = () => {
+    auth.removeLocal('token');
+    auth.removeLocal('userInfo');
+    handleLoginOut(login.clearAll({}));
+    handlePlay(play.stop(false))
+  }
+
+  // 关闭
+  const handleClose = () => {
+    currentWindow?.close()
+    handlePlay(play.stop(false))
+  }
 
   useEffect(() => {
     if (maximized) {
@@ -55,13 +61,17 @@ function Titlebar(props) {
     }
   }, [maximized]);
 
+  if( !token ) {
+    <Redirect to='/login'/>
+  }
+
   return (
     <TitleBar
       id="title_bar"
       iconSrc={logo}
       currentWindow={currentWindow}
       platform={process.platform}
-      onClose={() => currentWindow?.close()}
+      onClose={handleClose}
       onMinimize={() => currentWindow?.minimize()}
       onMaximize={handleMaximize}
       onDoubleClick={handleMaximize}
@@ -75,12 +85,16 @@ function Titlebar(props) {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  handleLoginOut: () => {
-    dispatch(login.clearAll({}));
+  handleLoginOut: (action) => {
+    dispatch(action)
   },
+  handlePlay: (action) => {
+    dispatch(action)
+  }
 });
 const mapStateToProps = (state) => ({
   userInfo: state.profile,
+  token: state.profile.token
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Titlebar))

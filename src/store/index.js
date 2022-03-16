@@ -1,9 +1,11 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import profileReducers from '@/reducers/profileReducers';
+import profile from '@/reducers/profile';
+import play from '@/reducers/play';
 
 const rootReducer = combineReducers({
-  profile: profileReducers
+  profile,
+  play
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose

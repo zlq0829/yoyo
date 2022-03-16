@@ -1,13 +1,16 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { Select, Empty, message } from 'antd';
-import utils from '@/utils'
+import utils from '@/utils';
 import API from '@/services';
+import action from '@/actions';
 import defaultBgImage from '@/assets/images/backgroundImg.jpg';
-import yoyo from '@/assets/images/character_model_yoyo.png'
+import yoyo from '@/assets/images/character_model_yoyo.png';
 import './index.less';
 
 const {type: { toString }} = utils
+const { play: { stop, start} } = action
 class AutoPlay extends React.Component {
   state = {
     // select组件options
@@ -41,21 +44,18 @@ class AutoPlay extends React.Component {
   // 直播 || 关闭
   handleVideoProcess = async () => {
     // 阻止在没有选中商品的情况下播放
-    if(this.state.goodsList === 0) {
+    if( this.state.goodsList === 0 ) {
       message.warning('请先选择商品！')
       return
     }
 
-    const that = this
-    this.setState({ isPlay: !this.state.isPlay }, ()=>{
-      localStorage.setItem('playStatus', this.state.isPlay)
-      const { isPlay } = this.state
-      if(isPlay) {
-        that.connectVideoProcess()
-      } else {
-        this.disConnectVideoProcess()
-      }
-    });
+    if(this.props.playState) {
+      this.disConnectVideoProcess()
+      this.props.handlePlay(stop(false))
+    } else {
+      this.connectVideoProcess()
+      this.props.handlePlay(start(true))
+    }
   }
 
   // 获取商品列表
@@ -87,11 +87,11 @@ class AutoPlay extends React.Component {
     const { localServerWsClient: client } = window;
     const { localServerUrl, goodsList } = this.state
     const that = this
+
     let bg = `../build${defaultBgImage}`
     if(process.env.NODE_ENV !== 'development') {
       bg = `../app.asar.unpacked${defaultBgImage}`
     }
-    console.log(bg)
 
     // 背景图 和 清晰图
     const Initialize = 'start->' + toString(
@@ -106,7 +106,7 @@ class AutoPlay extends React.Component {
       this.sendGoodsToServe(client, goodsList)
     } else {
       const client = new W3CWebSocket(localServerUrl);
-      
+
       // 用于指定连接失败后的回调函数
       client.onerror = (error)=>{
         message.info({
@@ -124,6 +124,7 @@ class AutoPlay extends React.Component {
         this.sendGoodsToServe(client, goodsList)
         window.localServerWsClient = client;
       }
+
       // 用于指定连接关闭后的回调函数
       client.onclose = ()=>{
         that.setState({isPlay: false})
@@ -149,7 +150,7 @@ class AutoPlay extends React.Component {
       speed_list: e.speed_list,
       wav_url_list: e.wav_url_list,
       image: e.image,
-      is_landscape: true,
+      is_landscape: false,
       resize: false
     }))
     client.send('sequence->' + toString(data))
@@ -177,6 +178,7 @@ class AutoPlay extends React.Component {
   }
 
   render() {
+    const { playState } = this.props
     const { options, goodsList, reverse, defaultValue, loading, isPlay } = this.state
     return (
       <div className='auto_play flex justify-between h-full overflow-hidden'>
@@ -263,7 +265,7 @@ class AutoPlay extends React.Component {
           <div className='play_contron h_80 rounded bg-white mt-4 flex justify-center items-center'>
             <button className='bg-FF8462 px-6 py-2 rounded-full text-white' onClick={this.handleVideoProcess}>
               {
-                !isPlay? (<span>开始直播</span>):(<span>关闭直播</span>)
+                !playState? (<span>开始直播</span>):(<span>关闭直播</span>)
               }
             </button>
           </div>
@@ -285,4 +287,15 @@ class AutoPlay extends React.Component {
   }
 }
 
-export default AutoPlay;
+const mapStateToProps = (state) => ({
+  playState: state.play
+});
+const mapDispatchToProps = (dispatch) => ({
+  handlePlay: (actions)=>{
+    dispatch(actions)
+  }
+});
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AutoPlay);

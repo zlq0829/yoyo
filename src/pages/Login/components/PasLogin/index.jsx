@@ -125,6 +125,7 @@ const Login = (props) => {
 const mapStateToProps = (state) => ({
   token: state.profile.token,
 });
+
 const mapDispatchToProps = (dispatch) => ({
   handleProfile: (data) => {
     dispatch(profile.addProfile(data));
