@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons'
 import { Select, Empty, message } from 'antd';
 import utils from '@/utils';
 import API from '@/services';
@@ -23,8 +24,6 @@ class AutoPlay extends React.Component {
     defaultValue: '',
     // 下拉框loading
     loading: false,
-    // 播放状态
-    isPlay: localStorage.getItem('playStatus') || false,
     // ws
     localServerUrl: process.env.REACT_APP_LOCAL_SERVER_URL
   }
@@ -39,6 +38,15 @@ class AutoPlay extends React.Component {
   // 横竖屏切换
   handleReverse = () => {
     this.setState({ reverse: !this.state.reverse });
+  }
+
+  // 商品缩放
+  handleZoom = (bol) => {
+    if(bol) {
+      console.log('放大')
+    } else {
+      console.log('缩小')
+    }
   }
 
   // 直播 || 关闭
@@ -86,7 +94,6 @@ class AutoPlay extends React.Component {
   connectVideoProcess = () => {
     const { localServerWsClient: client } = window;
     const { localServerUrl, goodsList } = this.state
-    const that = this
 
     let bg = `../build${defaultBgImage}`
     if(process.env.NODE_ENV !== 'development') {
@@ -127,7 +134,7 @@ class AutoPlay extends React.Component {
 
       // 用于指定连接关闭后的回调函数
       client.onclose = ()=>{
-        that.setState({isPlay: false})
+        // that.setState({isPlay: false})
         window.localServerWsClient = null
       }
     }
@@ -179,7 +186,7 @@ class AutoPlay extends React.Component {
 
   render() {
     const { playState } = this.props
-    const { options, goodsList, reverse, defaultValue, loading, isPlay } = this.state
+    const { options, goodsList, reverse, defaultValue, loading } = this.state
     return (
       <div className='auto_play flex justify-between h-full overflow-hidden'>
         {/* 左 */}
@@ -253,7 +260,7 @@ class AutoPlay extends React.Component {
               <div className='play_window w-full h_268 rounded' />
             )}
             <div className='absolute top_240 -left_40 w__7 overflow-hidden'>
-              <img src={yoyo}/>
+              <img src={yoyo} alt='' />
             </div>
             {/* <div
               className='font_14 color_FF8462 bg-001529 w_50 text-center absolute right-0 top-2 rounded-l cursor-pointer'
@@ -262,12 +269,20 @@ class AutoPlay extends React.Component {
               {reverse ? '横屏' : '竖屏'}
             </div> */}
           </div>
-          <div className='play_contron h_80 rounded bg-white mt-4 flex justify-center items-center'>
+          <div className='play_contron h_80 rounded bg-white mt-4 flex items-center justify-between px-4 box-border'>
+            <div className='flex items-center h-full cursor-pointer' onClick={() => this.handleZoom(false)}>
+              <MinusCircleOutlined />
+              <span className='ml-2'>缩小</span>
+            </div>
             <button className='bg-FF8462 px-6 py-2 rounded-full text-white' onClick={this.handleVideoProcess}>
               {
                 !playState? (<span>开始直播</span>):(<span>关闭直播</span>)
               }
             </button>
+            <div className='flex items-center h-full cursor-pointer' onClick={() => this.handleZoom(true)}>
+              <PlusCircleOutlined />
+              <span className='ml-2'>放大</span>
+            </div>
           </div>
         </div>
 

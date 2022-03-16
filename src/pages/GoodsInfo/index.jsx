@@ -257,12 +257,11 @@ class GoodsInfo extends React.Component {
 
   // 音频复原
   handleVioceRecover = async (id) => {
-    let response = null
     const data = {
       simple_id: id
     }
     try {
-      response = await API.goodsManageApi.restoreVioce(data)
+      await API.goodsManageApi.restoreVioce(data)
     } catch (error) {
       return false
     }

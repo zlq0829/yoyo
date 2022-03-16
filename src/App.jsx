@@ -4,6 +4,7 @@ import './App.less';
 const Login = React.lazy(() => import('@/pages/Login'));
 const Layout = React.lazy(() => import('@/layout'));
 const TitleBar = React.lazy(()=>import('./TitleBar'))
+const packager = require('../package.json') //需要取版本号
 
 function App() {
   return (

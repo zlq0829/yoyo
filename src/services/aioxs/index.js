@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { Spin, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import Axios from 'axios';
-import UTILS from '@/utils'
-const { auth, validate } = UTILS
+import utils from '@/utils'
+const { auth: { getLocal } } = utils
 
 // 加载动效，效缓解用户的焦虑。
 let needLoading = false
@@ -36,10 +36,10 @@ const responseHandle = {
     return Promise.reject(response.data.message);
   },
   401: (response) => {
-    window.location.href = window.location.origin;
+    window.location.href = window.location.origin + '#/login';
   },
   500: (error) => {
-    return Promise.reject()
+    return Promise.reject(error)
   },
   default: (response) => {
     return Promise.reject(response);
@@ -55,8 +55,8 @@ const service = Axios.create({
 service.interceptors.request.use(
   ( config ) => {
     needLoading = config.needLoading
-    auth.getLocal('token') &&
-      (config.headers.Authorization = 'JWT ' + auth.getLocal('token'));
+    getLocal('token') &&
+      (config.headers.Authorization = 'JWT ' + getLocal('token'));
 
     if (
       config.method.toLocaleLowerCase() === 'post' ||
@@ -76,7 +76,6 @@ service.interceptors.request.use(
     if( needLoading ) {
       startLoading()
     }
-
     return config;
   },
 

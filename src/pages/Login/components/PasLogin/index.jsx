@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { Form, Input, Checkbox, message, Button } from 'antd';
+import { Form, Input, Checkbox } from 'antd';
 import utils from '@/utils';
 import API from '@/services';
 import action from '@/actions';
 import userIcon from '@/assets/icons/user_icon.png';
 import eyeIcon from '@/assets/icons/eye_icon.png';
 
-const { auth, validate } = utils;
-const { profile } = action;
+const { auth: { getLocal, setLocal }, validate: { validPhone } } = utils;
+const { profile: { addProfile } } = action;
 const accountCache =
-  auth.getLocal('accountCache') && JSON.parse(auth.getLocal('accountCache'));
+  getLocal('accountCache') && JSON.parse(getLocal('accountCache'));
 const TokenKey = 'token';
 
 const Login = (props) => {
@@ -23,7 +23,7 @@ const Login = (props) => {
 
   // 提交
   const handleSubmit = async () => {
-    if (!validate.validPhone(account)) {
+    if (!validPhone(account)) {
       setWarnings('账号格式不正确，请重新输入')
       return false;
     } else if (!password) {
@@ -39,19 +39,22 @@ const Login = (props) => {
     try {
       response = await API.loginApi.loginByPassword(data);
     } catch (error) {
-      message.error((error && error.message) || '登陆失败');
+      setWarnings('账号或密码不对')
       return false;
     }
 
-    auth.setLocal(TokenKey, response.data.token);
-    auth.setLocal('userInfo', JSON.stringify(response.data));
-    props.handleProfile(response.data);
+    if(response && response.code === 200) {
+      setLocal(TokenKey, response.data.token);
+      setLocal('userInfo', JSON.stringify(response.data));
+      props.handleProfile(response.data);
+    }
+
   };
 
   // 是否保存账号密码
   useEffect(() => {
-    if (checked && validate.validPhone(account)) {
-      auth.setLocal('accountCache', JSON.stringify({ account, password }));
+    if (checked && validPhone(account)) {
+      setLocal('accountCache', JSON.stringify({ account, password }));
     }
   }, [checked, account, password]);
 
@@ -128,7 +131,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   handleProfile: (data) => {
-    dispatch(profile.addProfile(data));
+    dispatch(addProfile(data));
   },
 });
 

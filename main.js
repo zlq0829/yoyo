@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn, exec } = require('child_process');
+
 const log = console;
 let workerProcess = null;
 let mainWindow = null;

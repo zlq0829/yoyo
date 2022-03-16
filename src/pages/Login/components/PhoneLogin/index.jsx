@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { Input } from 'antd';
-import UTILS from '@/utils';
+import action from '@/actions';
+import utils from '@/utils';
 import API from '@/services';
 import phoneIcon from '@/assets/icons/phone_icon.png';
 import pasIcon from '@/assets/icons/pas_icon.png';
 
-const { validate } = UTILS;
+const { auth: { setLocal }, validate: { validPhone } } = utils;
+const { profile } = action;
+const TokenKey = 'token';
 let timeOut;
 
 const PhoneLogin = (props) => {
-  const { token } = props;
+  const { token, handleProfile } = props;
   const [phone, setPhone] = useState();
   const [code, setCode] = useState();
   const [warnings, setWarnings] = useState();
@@ -33,7 +36,7 @@ const PhoneLogin = (props) => {
     if (!phone) {
       setWarnings('请输入手机号码')
       return false;
-    } else if(!validate.validPhone(phone)) {
+    } else if(!validPhone(phone)) {
       setWarnings('手机号码格式不正确')
       return false;
     }
@@ -60,25 +63,31 @@ const PhoneLogin = (props) => {
       phone_num: data.phone,
       code: data.code,
     };
-    let res = null;
+    let response = null;
 
     try {
-      res = await API.loginApi.loginByValidCode(params);
+      response = await API.loginApi.loginByValidCode(params);
     } catch (error) {
+      setWarnings('请刷新重试')
       return false;
     }
 
+    if( response && response.code === 200 ) {
+      setLocal(TokenKey, response.data.token);
+      setLocal('userInfo', JSON.stringify(response.data));
+      handleProfile(response.data);
+    }
   };
 
   // 表单提交事件
   const handleSubmit = () => {
-    if (!phone) {
+    if ( !phone ) {
       setWarnings('请填写手机号');
       return false;
-    } else if (!validate.validPhone(phone)) {
+    } else if ( !validPhone(phone) ) {
       setWarnings('手机号码格式不正确');
       return false;
-    } else if (!code) {
+    } else if (!code ) {
       setWarnings('请填写验证码');
       return false;
     }
@@ -86,7 +95,7 @@ const PhoneLogin = (props) => {
     handleLogin({ phone, code });
   };
 
-  if (token) {
+  if ( token ) {
     clearTimeout(timeOut)
     return <Redirect to='/' />;
   }
@@ -153,12 +162,13 @@ const PhoneLogin = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = ( state ) => ({
   token: state.profile.token,
 });
-const mapDispatchToProps = (dispatch) => ({
-  handleProfile: (data) => {
-    // dispatch(profile.addProfile(data));
+
+const mapDispatchToProps = ( dispatch ) => ({
+  handleProfile: ( data ) => {
+    dispatch(profile.addProfile( data ));
   },
 });
 
