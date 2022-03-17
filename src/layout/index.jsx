@@ -9,7 +9,8 @@ const ContentMain = React.lazy(()=>import('./components/ContentMain'))
 
 
 function _Layout(props) {
-  const { token } = props;
+  const { token, avatar } = props;
+
   if(!token) {
     return <Redirect to='/login'/>
   }
@@ -17,6 +18,11 @@ function _Layout(props) {
     <div className='flex-1'>
       <Layout className='layout'>
         <Layout.Sider defaultCollapsed={true} trigger={null}>
+          <div className='w_74 h_60 mt-3'>
+            <div className="w_60 h_60 ml_14 overflow-hidden rounded-full">
+              <img src={avatar} alt='' className='w-full h-full'/>
+            </div>
+          </div>
           <SiderNav />
         </Layout.Sider>
         <Layout>
@@ -29,5 +35,6 @@ function _Layout(props) {
 
 const mapStateToProps = (state) => ({
   token: state.profile.token,
+  avatar: state.profile.avatar
 });
 export default connect(mapStateToProps)(_Layout);

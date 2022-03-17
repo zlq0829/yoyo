@@ -77,9 +77,9 @@ function Titlebar(props) {
       onDoubleClick={handleMaximize}
       maximized={maximized}
     >
-      {userInfo.token && (
+      {/* {userInfo.token && (
         <Popover userInfo={userInfo} loginOut={loginOut} />
-      )}
+      )} */}
     </TitleBar>
   );
 };
