@@ -9,7 +9,7 @@ const ContentMain = React.lazy(()=>import('./components/ContentMain'))
 
 
 function _Layout(props) {
-  const { token, avatar } = props;
+  const { token } = props;
 
   if(!token) {
     return <Redirect to='/login'/>
@@ -30,6 +30,5 @@ function _Layout(props) {
 
 const mapStateToProps = (state) => ({
   token: state.profile.token,
-  avatar: state.profile.avatar
 });
 export default connect(mapStateToProps)(_Layout);
