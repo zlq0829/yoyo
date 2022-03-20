@@ -68,6 +68,12 @@ const AutoPlay = (props) => {
     }
   };
 
+  // 获取商品的位置
+  const getGoodsPositions = () => {
+    const o = document.getElementsByClassName('goods-img')[0];
+    console.log(o.offsetLeft, o.offsetTop)
+  }
+
   // 通过 ws 连接视频处理服务器
   const connectVideoProcess = () => {
     const { localServerWsClient: client } = window;
@@ -148,6 +154,7 @@ const AutoPlay = (props) => {
       disConnectVideoProcess();
       handlePlay(stop());
     } else {
+      getGoodsPositions()
       connectVideoProcess();
       handlePlay(start());
     }
@@ -155,27 +162,82 @@ const AutoPlay = (props) => {
 
   // 商品拖动
   const handleDragStart = (e) => {
-    const o = document.getElementsByClassName('goods-img')[0]
-    const c = document.getElementsByClassName('center')[0]
-    const s = o.style
-    const x = e.clientX - o.offsetLeft
-    const y = e.clientY - o.offsetTop
+    // 避免拖动出现异常背影
+    document.getElementsByTagName('body')[0].ondragstart = function() {
+      window.event.returnValue = false;
+      return false;
+    };
+
+    const c = document.getElementsByClassName('center')[0];
+    const o = document.getElementsByClassName('goods-img')[0];
+    // 计算
+    const disX = e.clientX - o.offsetLeft;
+    const disY = e.clientY - o.offsetTop;
+
+
     document.onmousemove = function(e) {
-      s.left = e.clientX - x + 'px';
-      s.top = e.clientY - y + 'px';
+      // 计算移动对象在限定的范围内的位置
+      let left = e.clientX - disX
+      let top = e.clientY - disY
+
+      // 左侧限制
+      left <= 0 && (left = 0);
+      top <= 0 && (top = 0);
+
+      // 右侧限制
+      (left >= c.offsetWidth - o.offsetWidth) && (left = c.offsetWidth - o.offsetWidth);
+      (top >= c.offsetHeight - o.offsetHeight) && (top = c.offsetHeight - o.offsetHeight);
+
+      o.style.left = left + 'px'
+      o.style.top = top + 'px'
     }
+
     document.onmouseup = function () {
       document.onmousemove = null
+    };
+  }
+
+  // 商品缩放
+  const handleScale = () => {
+    const o = document.getElementsByClassName('goods-img')[0];
+    const c = document.getElementsByClassName('center')[0];
+    const c_width = c.offsetWidth;
+    const c_height = c.offsetHeight;
+
+    o.onmousewheel = function(e) {
+      //获取图片的宽高
+      const offsetWidth = o.offsetWidth;
+      const offsetHeight = o.offsetHeight;
+
+      //获取图片距离body左侧和上面的距离
+      const left = parseFloat(o.offsetLeft);
+      const top = parseFloat(o.offsetTop);
+
+      //获取定点的位置（鼠标在图片上的位置）
+      const disX = e.clientX - e.offsetLeft;
+      const disY = e.clientY - e.offsetTop;
+
+
+      //wheelDelta的值为正（120.240...）则是鼠标向上；为负（-120，-240）则是向下
+      if (e.wheelDelta > 0) {
+        o.style.width = (offsetWidth + offsetWidth * 0.2) + 'px';
+        o.style.height = (offsetHeight + offsetHeight * 0.2) + 'px';
+        o.style.left = (left - disX * 0.2) + 'px'; //由于图片是定点缩放的，所以图片的位置应该更改
+        o.style.top = (top - disY * 0.2) + 'px';
+      } else {
+        o.style.width = offsetWidth - offsetWidth * 0.2 + 'px';
+        o.style.height = offsetHeight - offsetHeight * 0.2 + 'px';
+        o.style.left = left + disX * 0.2 + 'px';
+        o.style.top = top + disY * 0.2 + 'px';
+      }
     }
   }
 
-  // 阻止默认拖动事件
-  const handleStopDrag = (e) => {
-    e.preventDefault()
-  }
+
 
   useEffect(() => {
     getPlaylist();
+    handleScale()
   }, []);
 
   return (
@@ -227,30 +289,24 @@ const AutoPlay = (props) => {
 
       {/* 中 */}
       <div
-        className='m_l_r_24 w_300 flex-1 box-border flex flex-col center'
-        style={{
-          maxWidth: '500px',
-          width: '300px',
-          minWidth: '300px',
-        }}
+        className='m_l_r_24 w_405 flex-1 box-border flex flex-col'
       >
         <div
           className={[
-            'rounded relative flex-1 bg-white',
+            'rounded relative flex-1 bg-white center',
           ].join(' ')}
         >
           {/* 背景 */}
           <div className='play_window h-full rounded' />
           {/* 人物 */}
-          <div className='absolute bottom-0 -left_40 w_7_100 overflow-hidden'>
+          <div className='absolute bottom-0  w_33vh overflow-hidden'>
             <img src={yoyo} alt='' />
           </div>
           {/* 商品 */}
           <div
-            className='absolute w_2vw h_2vw overflow-hidden goods-img bg-black'
+            className='absolute w_2vw h_2vw overflow-hidden goods-img bg-black rounded'
             style={{ right: 0, top: '20vh' }}
             onDragStart={handleDragStart}
-            onDragEnd={handleStopDrag}
           >
             <img src={yoyo} alt='' className='w-full h-full' />
           </div>
