@@ -21,6 +21,8 @@ const AutoPlay = (props) => {
   const [reverse, setReverse] = useState(false);
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [goodsUrl, setGoodsUrl] = useState('');
+  const [goodsWav, setGoodsWav] = useState('');
   const localServerUrl = process.env.REACT_APP_LOCAL_SERVER_URL;
   const { playState, handlePlay } = props;
 
@@ -42,7 +44,7 @@ const AutoPlay = (props) => {
       return false;
     }
 
-    if (response && response.code === 200) {
+    if (response && response.code === 200 && response.data.length > 0) {
       setGoodsList(response.data);
     }
   };
@@ -71,8 +73,8 @@ const AutoPlay = (props) => {
   // 获取商品的位置
   const getGoodsPositions = () => {
     const o = document.getElementsByClassName('goods-img')[0];
-    console.log(o.offsetLeft, o.offsetTop)
-  }
+    console.log(o.offsetLeft, o.offsetTop, o.offsetHeight, o.offsetWidth);
+  };
 
   // 通过 ws 连接视频处理服务器
   const connectVideoProcess = () => {
@@ -154,7 +156,7 @@ const AutoPlay = (props) => {
       disConnectVideoProcess();
       handlePlay(stop());
     } else {
-      getGoodsPositions()
+      getGoodsPositions();
       connectVideoProcess();
       handlePlay(start());
     }
@@ -163,7 +165,7 @@ const AutoPlay = (props) => {
   // 商品拖动
   const handleDragStart = (e) => {
     // 避免拖动出现异常背影
-    document.getElementsByTagName('body')[0].ondragstart = function() {
+    document.getElementsByTagName('body')[0].ondragstart = function () {
       window.event.returnValue = false;
       return false;
     };
@@ -174,28 +176,30 @@ const AutoPlay = (props) => {
     const disX = e.clientX - o.offsetLeft;
     const disY = e.clientY - o.offsetTop;
 
-
-    document.onmousemove = function(e) {
+    document.onmousemove = function (e) {
       // 计算移动对象在限定的范围内的位置
-      let left = e.clientX - disX
-      let top = e.clientY - disY
+      let left = e.clientX - disX;
+      let top = e.clientY - disY;
 
       // 左侧限制
       left <= 0 && (left = 0);
       top <= 0 && (top = 0);
 
       // 右侧限制
-      (left >= c.offsetWidth - o.offsetWidth) && (left = c.offsetWidth - o.offsetWidth);
-      (top >= c.offsetHeight - o.offsetHeight) && (top = c.offsetHeight - o.offsetHeight);
+      left >= c.offsetWidth - o.offsetWidth &&
+        (left = c.offsetWidth - o.offsetWidth);
+      top >= c.offsetHeight - o.offsetHeight &&
+        (top = c.offsetHeight - o.offsetHeight);
 
-      o.style.left = left + 'px'
-      o.style.top = top + 'px'
-    }
+      o.style.left = left + 'px';
+      o.style.top = top + 'px';
+    };
 
     document.onmouseup = function () {
-      document.onmousemove = null
+      document.onmousemove = null;
+      document.onmousedown = null;
     };
-  }
+  };
 
   // 商品缩放
   const handleScale = () => {
@@ -204,7 +208,7 @@ const AutoPlay = (props) => {
     const c_width = c.offsetWidth;
     const c_height = c.offsetHeight;
 
-    o.onmousewheel = function(e) {
+    o.onmousewheel = function (e) {
       //获取图片的宽高
       const offsetWidth = o.offsetWidth;
       const offsetHeight = o.offsetHeight;
@@ -217,28 +221,56 @@ const AutoPlay = (props) => {
       const disX = e.clientX - e.offsetLeft;
       const disY = e.clientY - e.offsetTop;
 
-
       //wheelDelta的值为正（120.240...）则是鼠标向上；为负（-120，-240）则是向下
       if (e.wheelDelta > 0) {
-        o.style.width = (offsetWidth + offsetWidth * 0.2) + 'px';
-        o.style.height = (offsetHeight + offsetHeight * 0.2) + 'px';
-        o.style.left = (left - disX * 0.2) + 'px'; //由于图片是定点缩放的，所以图片的位置应该更改
-        o.style.top = (top - disY * 0.2) + 'px';
+        // 限定宽度, 当商品的right 为 0, 或者left 为 0时
+        const width = offsetWidth + offsetWidth * 0.05;
+
+        if (c_width - width <= 0) {
+          o.style.width = c_width + 'px';
+        } else {
+          console.log(width)
+          o.style.width = width + 'px';
+        }
+
+        //当商品的right 或者 left 不为 0时
+        if (o.offsetLeft && width + o.offsetLeft >= c_width) {
+          o.style.width = c_width - o.offsetLeft + 'px';
+        }
+
+        // 限定高度
+        const height = offsetHeight + offsetHeight * 0.05;
+        if (c_height - height <= 0) {
+          o.style.height = c_height + 'px';
+        } else {
+          o.style.height = height + 'px';
+        }
+
+        // 当商品的top 或者 bottom 不为 0时
+        if (o.offsetTop && height + o.offsetTop > c_height) {
+          o.style.height = c_height - o.offsetTop + 'px';
+        }
+
+        //由于图片是定点缩放的，所以图片的位置应该更改
+        o.style.left = left - disX * 0.05 + 'px';
+        o.style.top = top - disY * 0.05 + 'px';
       } else {
-        o.style.width = offsetWidth - offsetWidth * 0.2 + 'px';
-        o.style.height = offsetHeight - offsetHeight * 0.2 + 'px';
-        o.style.left = left + disX * 0.2 + 'px';
-        o.style.top = top + disY * 0.2 + 'px';
+        o.style.width = offsetWidth - offsetWidth * 0.05 + 'px';
+        o.style.height = offsetHeight - offsetHeight * 0.05 + 'px';
+        o.style.left = left + disX * 0.05 + 'px';
+        o.style.top = top + disY * 0.05 + 'px';
       }
-    }
-  }
-
-
+    };
+  };
 
   useEffect(() => {
     getPlaylist();
-    handleScale()
+    // handleScale();
   }, []);
+
+  useEffect(() =>{
+    handleScale();
+  },[reverse])
 
   return (
     <div className='auto_play flex justify-between h-full overflow-hidden'>
@@ -267,9 +299,29 @@ const AutoPlay = (props) => {
                     className='flex flex-col goods_item  w_80 ml-4 mb-4'
                     key={good.id}
                   >
-                    <div className='h_80 cursor-pointer rounded overflow-hidden'>
-                      <img src={good.image[0]} alt='' className='rounded' />
-                    </div>
+                    {good.image.length ? (
+                      <div
+                        className='h_80 cursor-pointer rounded overflow-hidden'
+                        onClick={() => {
+                          setGoodsUrl(good?.image[0]);
+                        }}
+                      >
+                        <img src={good.image[0]} alt='' className='rounded' />
+                      </div>
+                    ) : (
+                      <div
+                        className='h_80 cursor-pointer rounded overflow-hidden'
+                        onClick={() => {
+                          setGoodsWav(good.video_url);
+                        }}
+                      >
+                        <video
+                          src={good.video_url}
+                          alt=''
+                          className='rounded w-full h-full _video'
+                        />
+                      </div>
+                    )}
                     <div className='text-overflow font_12 mt-1 px-1'>
                       {good.name}
                     </div>
@@ -288,31 +340,52 @@ const AutoPlay = (props) => {
       </div>
 
       {/* 中 */}
-      <div
-        className='m_l_r_24 w_405 flex-1 box-border flex flex-col'
-      >
-        <div
-          className={[
-            'rounded relative flex-1 bg-white center',
-          ].join(' ')}
-        >
-          {/* 背景 */}
-          <div className='play_window h-full rounded' />
-          {/* 人物 */}
-          <div className='absolute bottom-0  w_33vh overflow-hidden'>
-            <img src={yoyo} alt='' />
-          </div>
-          {/* 商品 */}
-          <div
-            className='absolute w_2vw h_2vw overflow-hidden goods-img bg-black rounded'
-            style={{ right: 0, top: '20vh' }}
-            onDragStart={handleDragStart}
-          >
-            <img src={yoyo} alt='' className='w-full h-full' />
-          </div>
+      <div className='m_l_r_24 w_505 flex-1 box-border flex flex-col'>
+        <div className={['rounded relative flex-1 bg-white'].join(' ')}>
+          {reverse ? (
+            <div className='w-full h-full relative center'>
+              <div className='play_window h-full rounded' />
+
+              <div className='absolute bottom-0  w_33vh overflow-hidden'>
+                <img src={yoyo} alt='' />
+              </div>
+
+              <div
+                className='absolute w_20vh h_20vh overflow-hidden goods-img rounded'
+                style={{ right: 0, top: '20vh' }}
+                onDragStart={handleDragStart}
+              >
+                {goodsUrl && (
+                  <img src={goodsUrl} alt='' className='w-full h-full' />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className='w-full h-full flex flex-col justify-center relative '>
+              <div
+                className='w-full h_284 play_window relative center'
+                style={{ backgroundSize: '100%, 100%' }}
+              >
+                <div className='absolute bottom-0 left-10 w_100 overflow-hidden'>
+                  <img src={yoyo} alt='' className='w-full h-full' />
+                </div>
+
+                <div
+                  className='absolute rounded goods-img overflow-hidden right-36 top-4 h_2vh w_2vh bg-black'
+                  onDragStart={handleDragStart}
+                >
+                  <img src={yoyo} alt='' className='w-full h-full' />
+                </div>
+              </div>
+            </div>
+          )}
+
+
+
+
           <div
             className='font_12 color_FF8462 px-1 bg-001529 absolute right-0 top-2 rounded-l cursor-pointer'
-            onClick={() => setReverse((reverse) => !reverse)}
+            onClick={() => { setReverse((reverse) => !reverse)}}
           >
             {reverse ? '横屏' : '竖屏'}
           </div>
