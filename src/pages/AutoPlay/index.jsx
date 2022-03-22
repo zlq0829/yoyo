@@ -365,7 +365,7 @@ const AutoPlay = (props) => {
                 </div>
 
                 <div
-                  className='absolute rounded goods-img overflow-hidden right-36 top-4 h_2vh w_2vh bg-black'
+                  className='absolute rounded goods-img overflow-hidden right-36 top-4 h_13vh w_13vh bg-black'
                   onDragStart={handleDragStart}
                 >
                   <img src={yoyo} alt='' className='w-full h-full' />
