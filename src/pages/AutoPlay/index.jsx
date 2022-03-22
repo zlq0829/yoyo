@@ -188,6 +188,7 @@ const AutoPlay = (props) => {
       // 右侧限制
       left >= c.offsetWidth - o.offsetWidth &&
         (left = c.offsetWidth - o.offsetWidth);
+
       top >= c.offsetHeight - o.offsetHeight &&
         (top = c.offsetHeight - o.offsetHeight);
 
@@ -205,13 +206,13 @@ const AutoPlay = (props) => {
   const handleScale = () => {
     const o = document.getElementsByClassName('goods-img')[0];
     const c = document.getElementsByClassName('center')[0];
-    const c_width = c.offsetWidth;
-    const c_height = c.offsetHeight;
-
+    let c_width = c.offsetWidth
+    if(reverse) {
+      c_width = c.offsetHeight
+    }
     o.onmousewheel = function (e) {
       //获取图片的宽高
       const offsetWidth = o.offsetWidth;
-      const offsetHeight = o.offsetHeight;
 
       //获取图片距离body左侧和上面的距离
       const left = parseFloat(o.offsetLeft);
@@ -223,49 +224,43 @@ const AutoPlay = (props) => {
 
       //wheelDelta的值为正（120.240...）则是鼠标向上；为负（-120，-240）则是向下
       if (e.wheelDelta > 0) {
-        // 限定宽度, 当商品的right 为 0, 或者left 为 0时
         const width = offsetWidth + offsetWidth * 0.05;
-
-        if (c_width - width <= 0) {
+        console.log()
+        if(c_width - width <= 0) {
           o.style.width = c_width + 'px';
+          o.style.height = c_width + 'px';
         } else {
-          console.log(width)
-          o.style.width = width + 'px';
+          o.style.width = offsetWidth + offsetWidth * 0.05 + 'px';
+          o.style.height = offsetWidth + offsetWidth * 0.05 + 'px';
+          o.style.left = left + disX * 0.05 + 'px';
+          o.style.top = top + disY * 0.05 + 'px';
         }
 
-        //当商品的right 或者 left 不为 0时
-        if (o.offsetLeft && width + o.offsetLeft >= c_width) {
-          o.style.width = c_width - o.offsetLeft + 'px';
-        }
-
-        // 限定高度
-        const height = offsetHeight + offsetHeight * 0.05;
-        if (c_height - height <= 0) {
-          o.style.height = c_height + 'px';
+        //当商品的right 或者 left 不为 0时,放大到父盒子的边界即停止
+        if(!reverse) {
+          if (o.offsetLeft && width + o.offsetLeft >= c_width) {
+            o.style.width = c_width - o.offsetLeft + 'px';
+            o.style.height = c_width - o.offsetLeft + 'px';
+          }
         } else {
-          o.style.height = height + 'px';
+          if(o.offsetTop && width + o.offsetTop >= c_width) {
+            o.style.width = c_width - o.offsetTop + 'px';
+            o.style.height = c_width - o.offsetTop + 'px';
+          }
         }
 
-        // 当商品的top 或者 bottom 不为 0时
-        if (o.offsetTop && height + o.offsetTop > c_height) {
-          o.style.height = c_height - o.offsetTop + 'px';
-        }
-
-        //由于图片是定点缩放的，所以图片的位置应该更改
-        o.style.left = left - disX * 0.05 + 'px';
-        o.style.top = top - disY * 0.05 + 'px';
       } else {
         o.style.width = offsetWidth - offsetWidth * 0.05 + 'px';
-        o.style.height = offsetHeight - offsetHeight * 0.05 + 'px';
+        o.style.height = offsetWidth - offsetWidth * 0.05 + 'px';
         o.style.left = left + disX * 0.05 + 'px';
         o.style.top = top + disY * 0.05 + 'px';
+
       }
     };
   };
 
   useEffect(() => {
     getPlaylist();
-    // handleScale();
   }, []);
 
   useEffect(() =>{
@@ -342,7 +337,7 @@ const AutoPlay = (props) => {
       {/* 中 */}
       <div className='m_l_r_24 w_505 flex-1 box-border flex flex-col'>
         <div className={['rounded relative flex-1 bg-white'].join(' ')}>
-          {reverse ? (
+          {!reverse ? (
             <div className='w-full h-full relative center'>
               <div className='play_window h-full rounded' />
 
@@ -351,12 +346,11 @@ const AutoPlay = (props) => {
               </div>
 
               <div
-                className='absolute w_20vh h_20vh overflow-hidden goods-img rounded'
-                style={{ right: 0, top: '20vh' }}
+                className='absolute w_20vh h_20vh overflow-hidden goods-img rounded left_505-20 top_20vh'
                 onDragStart={handleDragStart}
               >
                 {goodsUrl && (
-                  <img src={goodsUrl} alt='' className='w-full h-full' />
+                  <img src={goodsUrl} alt=''/>
                 )}
               </div>
             </div>

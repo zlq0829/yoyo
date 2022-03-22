@@ -17,7 +17,7 @@ function _Layout(props) {
   return (
     <div className='flex-1'>
       <Layout className='layout'>
-        <Layout.Sider defaultCollapsed={true} trigger={null}>
+        <Layout.Sider defaultCollapsed={true} trigger={null} styl={{overflow: 'auto',height: '100vh',position: 'fixed',left: 0,}}>
           <SiderNav />
         </Layout.Sider>
         <Layout>
