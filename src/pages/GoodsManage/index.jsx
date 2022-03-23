@@ -5,11 +5,13 @@ import { withRouter } from 'react-router-dom';
 import {
   RedoOutlined,
   AudioTwoTone,
-  CheckCircleTwoTone
+  CheckCircleTwoTone,
+  SyncOutlined
 } from '@ant-design/icons';
 import Modal from '@/components/Modal'
 import API from '@/services';
 import './index.less';
+
 const { TabPane } = Tabs;
 
 class GoodsManage extends React.Component {
@@ -24,6 +26,7 @@ class GoodsManage extends React.Component {
       modelWidth: '400px', // Model宽度
       bodyStyle: {height: 'auto', textAlign: 'center', padding: '10px' },// Model的中间内容样式
       goodsId: '',//商品ID
+      reLoad: false,// 刷新
     };
   }
 
@@ -109,6 +112,7 @@ class GoodsManage extends React.Component {
 
   // 刷新
   handleReLoad = () => {
+    this.setState({reLoad: true})
     this.getGoodsAndPlaylist();
   };
 
@@ -140,11 +144,10 @@ class GoodsManage extends React.Component {
       return false;
     }
 
-    response[0].data.content.forEach((goods) => {
-      goods.checked = false;
-    });
     if (response && response.length > 0) {
+      // 商品列表在其他页面还用到，所以存放到redux中，播放列表还是放在当前页面
       this.setState({
+        reLoad: false,
         goodsList: response[0].data.content,
         playList: response[1].data.content,
       });
@@ -157,7 +160,7 @@ class GoodsManage extends React.Component {
   }
 
   render() {
-    const { bodyStyle, modelWidth, modelTitle, modelVisible } = this.state
+    const { bodyStyle, modelWidth, modelTitle, modelVisible, reLoad, playList, goodsList } = this.state
     const { history } = this.props
     return (
       <div className='box-border goodsmanage overflow-hidden'>
@@ -167,30 +170,29 @@ class GoodsManage extends React.Component {
               <div
                 className={[
                   'good_list_wrap_h_full',
-                  this.state.goodsList.length && '-ml-12',
+                  goodsList.length && '-ml-12',
                 ].join(' ')}
               >
-                {this.state.goodsList.length > 0 ? (
+                {goodsList.length > 0 ? (
                   <div className='flex flex-wrap'>
-                    {this.state.goodsList.map((goods) => {
+                    {goodsList.map((goods) => {
                       return (
                         <div
                           className='flex flex-col goods_item w_100 ml-12 mb-12 cursor-pointer rounded'
                           key={goods.id}
                         >
                           {/* 图片或者视频 */}
-                          <div className='relative goods_item__hover'>
+                          <div className='relative goods_item__hover w_100 h_100 overflow-hidden border box-border rounded'>
                             {goods.image ? (
                               <img
                                 src={goods.image[0]}
                                 alt=''
-                                className='w_100 h_100 rounded'
                               />
                             ) : (
-                              <div className='w_100 h_100 '>
+                              <div className='w_100 h_100 rounded overflow-hidden  border box-border'>
                                 <video
                                   src={goods.video_url}
-                                  className='w-full, h-full _video rounded'
+                                  className='w-full h-full object-fit'
                                 />
                               </div>
                             )}
@@ -229,7 +231,6 @@ class GoodsManage extends React.Component {
                           </div>
                           <div className='font_12 mt-3 px-1'>
                             <div className='text-overflow text-center'>{goods.name}</div>
-                            {/* <div className='flex items-end overflow-hidden'></div> */}
                           </div>
                         </div>
                       );
@@ -246,22 +247,21 @@ class GoodsManage extends React.Component {
               <div
                 className={[
                   'good_list_wrap_h_full',
-                  this.state.playList.length && '-ml-12',
+                  playList.length && '-ml-12',
                 ].join(' ')}
               >
-                {this.state.playList.length > 0 ? (
+                {playList.length > 0 ? (
                   <div className='flex flex-wrap'>
-                    {this.state.playList.map((play) => {
+                    {playList.map((play) => {
                       return (
                         <div
                           className='flex flex-col goods_item w_100 ml-12 mb-12 cursor-pointer rounded'
                           key={play.id}
                         >
-                          <div className='relative goods_item__hover'>
+                          <div className='relative goods_item__hover w_100 h_100 overflow-hidden border box-border rounded'>
                             <img
                               src={play.cover_image}
                               alt=''
-                              className='w_100 h_100 rounded '
                             />
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span
@@ -293,12 +293,15 @@ class GoodsManage extends React.Component {
               </div>
             </TabPane>
           </Tabs>
+
           <div className='absolute z-10 _top right-6 flex'>
             <div
               className='border flex items-center py-0.5 px-4 rounded cursor-pointer reload'
               onClick={this.handleReLoad}
             >
-              <RedoOutlined />
+              {
+                !reLoad? (<RedoOutlined />) : (<SyncOutlined spin />)
+              }
             </div>
             {this.state.tabActive === '1' ? (
               <div
@@ -333,9 +336,7 @@ class GoodsManage extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({});
-const mapStateToProps = (state) => ({
-  userInfo: state,
-});
+const mapStateToProps = (state) => ({});
 
 export default withRouter(
   connect(mapStateToProps, mapDispatchToProps)(GoodsManage)

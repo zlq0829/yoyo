@@ -5,7 +5,7 @@ import * as play from './play'
 const action = {
   profile,
   login,
-  play
+  play,
 }
 
 export default action

@@ -45,6 +45,7 @@ const AutoPlay = (props) => {
     }
 
     if (response && response.code === 200 && response.data.length > 0) {
+      console.log(response.data)
       setGoodsList(response.data);
     }
   };
@@ -294,14 +295,14 @@ const AutoPlay = (props) => {
                     className='flex flex-col goods_item  w_80 ml-4 mb-4'
                     key={good.id}
                   >
-                    {good.image.length ? (
+                    {good.image?.length ? (
                       <div
                         className='h_80 cursor-pointer rounded overflow-hidden'
                         onClick={() => {
-                          setGoodsUrl(good?.image[0]);
+                          setGoodsUrl(good.image && good.image[0]);
                         }}
                       >
-                        <img src={good.image[0]} alt='' className='rounded' />
+                        <img src={good.image && good.image[0]} alt='' className='rounded' />
                       </div>
                     ) : (
                       <div
@@ -313,7 +314,7 @@ const AutoPlay = (props) => {
                         <video
                           src={good.video_url}
                           alt=''
-                          className='rounded w-full h-full _video'
+                          className='rounded w-full h-full object-fit'
                         />
                       </div>
                     )}

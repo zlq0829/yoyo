@@ -5,7 +5,7 @@ import play from '@/reducers/play';
 
 const rootReducer = combineReducers({
   profile,
-  play
+  play,
 })
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose

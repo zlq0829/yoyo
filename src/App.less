@@ -37,6 +37,11 @@ code {
   font-size: 20px;
 }
 
+// video标签
+.object-fit {
+  object-fit: cover
+}
+
 
 /*去除默认的边框线*/
 .ant-tabs-top > .ant-tabs-nav::before {
@@ -86,6 +91,12 @@ code {
 // 去除通过tab切换出现的边框线
 button:focus {
   outline: 0 !important;
+}
+
+// 清除Input组件选中状态的出现的阴影边框
+.ant-input:focus,
+.ant-input-affix-wrapper:focus {
+  box-shadow: 0 0px 0px #fff;
 }
 
 // 清除input框自动补全出现的背景色
