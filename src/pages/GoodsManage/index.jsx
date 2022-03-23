@@ -24,8 +24,10 @@ class GoodsManage extends React.Component {
       modelTitle: '',// Model标题
       modelVisible: false,// Model显示状态
       modelWidth: '400px', // Model宽度
+      modelContent: '', // Model文本
       bodyStyle: {height: 'auto', textAlign: 'center', padding: '10px' },// Model的中间内容样式
       goodsId: '',//商品ID
+      playId: '',// 播放ID
       reLoad: false,// 刷新
     };
   }
@@ -44,70 +46,36 @@ class GoodsManage extends React.Component {
   };
 
   // 删除商品
-  handleGoodsDelete = async (goods) => {
+  handleGoodsDelete = (goods) => {
     if(goods.status === 'f') {
       message.info('语音合成中，无法进行操作！');
       return
     } else {
-      this.setState({modelVisible: true, goodsId: goods.id})
+      this.setState({
+        modelVisible: true,
+        goodsId: goods.id,
+        modelContent: '确定删除该商品？'
+      })
     }
   };
 
   // 编辑播放列表
-  handlePlaysEdit = async (play) => {
-    // let response = null;
-    // let data = {
-    //   play_list_id: play.id,
-    //   size: 9999,
-    // };
-    // try {
-    //   response = await API.goodsManageApi.getPlayGoodsList(data);
-    // } catch (error) {
-    //   return false;
-    // }
-
-    // if (response && response.data.length > 0) {
-    //   response.data.forEach((e) => {
-    //     this.state.goodsId.push(e.id);
-    //     this.state.goodsList.some((goods) => {
-    //       goods.checked = goods.id === e.id;
-    //       return goods.id === e.id;
-    //     });
-    //   });
-
-    //   this.setState({
-    //     goodsList: this.state.goodsList,
-    //     isModalVisible: true,
-    //     updataOrAdd: true,
-    //     checkedAll: response.data.length === this.state.goodsList.length,
-    //     goodsName: play.name,
-    //     playId: play.id,
-    //   });
-    // }
+  handlePlaysEdit =  (play) => {
+    console.log(play)
   };
 
   // 播放列表删除
-  handlePlaysDelete = async (play) => {
-    let response = null;
-    try {
-      response = await API.goodsManageApi.deletePlay(play.id);
-      console.log(response);
-    } catch (error) {
-      return false;
-    }
-    if (response && response.code === 200) {
-      this.getGoodsAndPlaylist();
-    }
+  handlePlaysDelete = (play) => {
+    this.setState({
+      modelVisible: true,
+      playId: play.id,
+      modelContent: '确定删除该播放？'
+    })
   };
 
   // Tabs切换
   handleTabChange = (activeKey) => {
     this.setState({ tabActive: activeKey });
-  };
-
-  // 新增播放
-  handleAddPlays = () => {
-    console.log('增加播放页')
   };
 
   // 刷新
@@ -118,9 +86,15 @@ class GoodsManage extends React.Component {
 
   // 弹窗点击确定回调
   handleOk = async () => {
+    const { goodsId, playId, activeKey } = this.state
     let response = null
+
     try {
-      response = await API.goodsManageApi.deleteGoods(this.state.goodsId)
+      if( activeKey === '1' ) {
+        response = await API.goodsManageApi.deleteGoods(goodsId)
+      } else {
+        response = await API.goodsManageApi.deletePlay(playId)
+      }
     } catch (error) {
       message.error('删除失败！')
       return false
@@ -160,7 +134,7 @@ class GoodsManage extends React.Component {
   }
 
   render() {
-    const { bodyStyle, modelWidth, modelTitle, modelVisible, reLoad, playList, goodsList } = this.state
+    const { bodyStyle, modelWidth, modelTitle, modelVisible, reLoad, playList, goodsList, modelContent } = this.state
     const { history } = this.props
     return (
       <div className='box-border goodsmanage overflow-hidden'>
@@ -328,7 +302,8 @@ class GoodsManage extends React.Component {
           onCancel={()=>this.setState({modelVisible: false})}
           onOk={this.handleOk}
         >
-          <div>确定删除该商品！</div>
+
+          <div>{ modelContent }</div>
         </Modal>
       </div>
     );

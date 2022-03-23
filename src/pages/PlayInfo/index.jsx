@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input, Pagination } from 'antd';
 import { CloseCircleTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
+import { DragDropContext } from 'react-beautiful-dnd';
 import API from '@/services';
 import './index.less';
 
@@ -186,33 +187,35 @@ class PlayInfo extends React.Component {
             <div className='chosen-goods mt-6'>
               <div className='w_80px'>已选商品：</div>
               <div className='chosen-goods-wrap ml_35px flex flex-wrap'>
-                {chosenList.map((e) => {
-                  return (
-                    <div
-                      className='w_100px ml_45px mb_45px relative'
-                      key={e.id}
-                    >
-                      <div className='w_100px h_100px rounded overflow-hidden border'>
-                        {
-                          e.image?(
-                            <img alt='' src={e.image[0]} className='cursor-pointer' />
-                          ):(
-                            <video className='object-fit h-full w-full' src={e.video_url}/>
-                          )
-                        }
-                      </div>
-                      <div className='text-overflow w_100px px-1 font_12 mt-1 text-center'>
-                        {e.name}
-                      </div>
+                <DragDropContext>
+                  {chosenList.map((e) => {
+                    return (
                       <div
-                        className='absolute top-7px right-7px h-auto flex items-center'
-                        onClick={() => this.handleDeleteChosen(e.id)}
+                        className='w_100px ml_45px mb_45px relative'
+                        key={e.id}
                       >
-                        <CloseCircleTwoTone twoToneColor='#ee6843' />
+                        <div className='w_100px h_100px rounded overflow-hidden border'>
+                          {
+                            e.image?(
+                              <img alt='' src={e.image[0]} className='cursor-pointer' />
+                            ):(
+                              <video className='object-fit h-full w-full' src={e.video_url}/>
+                            )
+                          }
+                        </div>
+                        <div className='text-overflow w_100px px-1 font_12 mt-1 text-center'>
+                          {e.name}
+                        </div>
+                        <div
+                          className='absolute top-7px right-7px h-auto flex items-center'
+                          onClick={() => this.handleDeleteChosen(e.id)}
+                        >
+                          <CloseCircleTwoTone twoToneColor='#ee6843' />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </DragDropContext>
               </div>
             </div>
           )}
