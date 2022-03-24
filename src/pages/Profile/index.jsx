@@ -29,7 +29,6 @@ class Profile extends React.Component {
 
   // 确认修改网名
   handleComfimrResetName = async () => {
-    console.log(this.state.nickNamer)
     if(!this.state.nickNamer) {
       message.warn('昵称不能为空字符')
       return false

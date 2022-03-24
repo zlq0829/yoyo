@@ -139,8 +139,39 @@ class PlayInfo extends React.Component {
     }
   };
 
-  componentDidMount() {
-    this.getGoodsList();
+  getHasPlaysList = async (id) => {
+    let response = null;
+    const data = { play_list_id: id };
+    try {
+      response = await API.goodsManageApi.editPlays(data)
+    } catch (error) {
+      return false
+    }
+    if ( response && response.code === 200 && response.data.length > 0 ) {
+      const { data } = response
+      const { goodsList } = this.state
+      data.forEach(e=>{
+        e.choseState = true;
+        goodsList.some(c => {
+          return c.choseState = c.id === e.id
+        })
+      })
+
+      this.setState({
+        chosenList: data,
+        goodsList: this.state.goodsList
+      });
+
+    }
+  }
+
+  async componentDidMount() {
+    await this.getGoodsList();
+    const { query } = this.props.location
+    if( query ) {
+      this.setState({goodsName: query.goodsName})
+      this.getHasPlaysList(query.id)
+    }
   }
 
   render() {
@@ -287,7 +318,7 @@ class PlayInfo extends React.Component {
               </div>
             </div>
           )}
-          <div className='footer fixed bottom_15px z-10 left_95px w_100vw-100px flex items-center justify-center bg-white pt_15px py_30px'>
+          <div className='footer fixed bottom_15px z-10 left_95px w_100vw-100px flex items-center justify-center bg-white pt_15px py_25px'>
             <button
               className='mr-6 rounded border px-8 height_30px box-border'
               onClick={this.props.history.goBack}

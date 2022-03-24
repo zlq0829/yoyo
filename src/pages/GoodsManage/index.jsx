@@ -63,7 +63,10 @@ class GoodsManage extends React.Component {
 
   // 编辑播放列表
   handlePlaysEdit =  (play) => {
-    console.log(play)
+    this.props.history.push({
+      pathname: `/plays/${play.id}`,
+      query: { id: play.id, goodsName: play.name }
+    })
   };
 
   // 播放列表删除
