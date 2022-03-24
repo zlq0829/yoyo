@@ -85,10 +85,19 @@ export function validPhone(phone) {
 /**
  *
  * @param {string} phone
- * @returns string
+ * @returns {Boolean}
  */
 export function hidePhoneNum(phone) {
   const reg = /^(\d{3})\d{4}(\d{4})$/
   return phone.replace(reg, '$1****$2')
 }
 
+/**
+ *
+ * @param {sting} url
+ * @returns bol
+ */
+export function isImage(url) {
+  const reg = /\.(png|jpg|gif|jpeg|webp)$/
+  return reg.test(url)
+}

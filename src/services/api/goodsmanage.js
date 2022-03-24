@@ -53,7 +53,7 @@ function deletePlay(id) {
  * @param {object} data
  * @returns
  */
-function addPlay(data) {
+function increasePlays(data) {
   return request({
     url: '/api/play_list',
     method: 'POST',
@@ -62,11 +62,11 @@ function addPlay(data) {
 }
 
 /**
- * @description 获取播放列表
+ * @description 编辑播放列表
  * @param {object} data
  * @returns
  */
-function getPlayGoodsList(data) {
+function editPlays(data) {
   return request({
     url: '/api/play_list/get_commodity',
     method: 'GET',
@@ -114,6 +114,11 @@ function addGoods(data) {
   })
 }
 
+/**
+ *
+ * @param {object} data
+ * @returns
+ */
 function restoreVioce(data) {
   return request({
     url: '/api/commodity/vioce_restore',
@@ -122,13 +127,15 @@ function restoreVioce(data) {
   })
 }
 
+
+
 export {
   getGoodsList,
   getPlaylist,
   deleteGoods,
   deletePlay,
-  addPlay,
-  getPlayGoodsList,
+  increasePlays,
+  editPlays,
   updataPlayGoods,
   checkSensitiveWord,
   addGoods,

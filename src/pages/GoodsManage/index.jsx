@@ -10,9 +10,11 @@ import {
 } from '@ant-design/icons';
 import Modal from '@/components/Modal'
 import API from '@/services';
+import utils from '@/utils';
 import './index.less';
 
 const { TabPane } = Tabs;
+const {validate: { isImage }} = utils;
 
 class GoodsManage extends React.Component {
   constructor(props) {
@@ -115,11 +117,11 @@ class GoodsManage extends React.Component {
         API.goodsManageApi.getPlaylist(),
       ]);
     } catch (error) {
+      message.error('获取失败，请刷新重试！')
       return false;
     }
 
     if (response && response.length > 0) {
-      // 商品列表在其他页面还用到，所以存放到redux中，播放列表还是放在当前页面
       this.setState({
         reLoad: false,
         goodsList: response[0].data.content,
@@ -233,10 +235,9 @@ class GoodsManage extends React.Component {
                           key={play.id}
                         >
                           <div className='relative goods_item__hover w_100 h_100 overflow-hidden border box-border rounded'>
-                            <img
-                              src={play.cover_image}
-                              alt=''
-                            />
+                            {
+                              isImage(play.cover_image)?(<img src={play.cover_image} alt=''/>) : (<video className='object-fit h-full' src={play.cover_image}/>)
+                            }
                             <div className='absolute hidden justify-between font_12 w-full bottom-0 text-white bg-FF8462 opacity-60 edit'>
                               <span
                                 className='text-center flex-1'

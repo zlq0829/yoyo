@@ -1,7 +1,8 @@
 import React from 'react';
-import { Input, Pagination } from 'antd';
+import { Input, message, Pagination } from 'antd';
 import { CloseCircleTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { connect } from 'react-redux';
 import API from '@/services';
 import './index.less';
 
@@ -15,30 +16,38 @@ class PlayInfo extends React.Component {
       goodsList: [],
       chosenList: [],
       goodsName: '',
+      droppableId: 'droppable'
     };
   }
 
+  // 页码 defaultPageSize改变事件
   handleSizeChange = (current, size) => {
     this.setState({ size }, this.getGoodsList);
   };
 
+  // 当前页码改变事件
   handleChange = (page, pageSize) => {
     this.setState({ page }, this.getGoodsList);
   };
 
+  // 选中已有商品
   handleChoseGoods = (index) => {
-    const { goodsList, chosenList } = this.state
+    const { goodsList, chosenList } = this.state;
     goodsList[index].choseState = !goodsList[index].choseState;
 
     // 筛选选中的
     let idx;
-    goodsList.forEach( e => {
-      const isChosen = chosenList.some(v => {return v.id === e.id})
-      if(e.choseState && !isChosen) {
-        chosenList.push(e)
-      } else if(!e.choseState && isChosen) {
-        idx = chosenList.findIndex( c => { return c.id === e.id })
-        chosenList.splice(idx, 1)
+    goodsList.forEach((e) => {
+      const isChosen = chosenList.some((v) => {
+        return v.id === e.id;
+      });
+      if (e.choseState && !isChosen) {
+        chosenList.push(e);
+      } else if (!e.choseState && isChosen) {
+        idx = chosenList.findIndex((c) => {
+          return c.id === e.id;
+        });
+        chosenList.splice(idx, 1);
       }
     });
 
@@ -48,6 +57,7 @@ class PlayInfo extends React.Component {
     });
   };
 
+  // 删除选中删除
   handleDeleteChosen = (id) => {
     const { goodsList } = this.state;
     const chosenList = this.state.chosenList.filter((e) => {
@@ -64,8 +74,42 @@ class PlayInfo extends React.Component {
     });
   };
 
-  handleSubmit = () => {
-    console.log(this.state.goodsName);
+  // 拖动选中的商品
+  handleDragEnd = (result) =>{
+    if( !result.destination ) {
+      return
+    }
+
+    // 调正源数据的位置
+    const { index: sourceIndex } = result.source
+    const { index: changeIndex } = result.destination
+
+    // 保存替换的源数据
+    const temp = this.state.chosenList[sourceIndex]
+    // 删除原位置数据
+    this.state.chosenList.splice(sourceIndex, 1)
+    this.state.chosenList.splice(changeIndex, 0, temp)
+    this.setState({chosenList: this.state.chosenList })
+  }
+
+  // 提交
+  handleSubmit = async () => {
+    let response = null
+    const data = {
+      commodity_list: this.state.chosenList.map(e=>e.id),
+      name: this.state.goodsName,
+      user: this.props.user
+    }
+    try {
+      response = await API.goodsManageApi.increasePlays(data)
+    } catch (error) {
+      message.error('添加失败！')
+      return false
+    }
+
+    if( response && response.code === 200) {
+      message.success('添加成功！')
+    }
   };
 
   getGoodsList = async () => {
@@ -100,7 +144,7 @@ class PlayInfo extends React.Component {
   }
 
   render() {
-    const { total, goodsList, page, chosenList, goodsName } = this.state;
+    const { total, goodsList, page, chosenList, goodsName, droppableId } = this.state;
     const showTotal = (total) => {
       return `总共 ${total} 页`;
     };
@@ -125,7 +169,7 @@ class PlayInfo extends React.Component {
                     height: '30px',
                     borderColor: 'rgb(204,204,204)',
                     width: '535px',
-                    outline: 'none'
+                    outline: 'none',
                   }}
                 />
               </div>
@@ -187,40 +231,67 @@ class PlayInfo extends React.Component {
             <div className='chosen-goods mt-6'>
               <div className='w_80px'>已选商品：</div>
               <div className='chosen-goods-wrap ml_35px flex flex-wrap'>
-                <DragDropContext>
-                  {chosenList.map((e) => {
-                    return (
+                <DragDropContext onDragEnd={this.handleDragEnd}>
+                  <Droppable droppableId={droppableId} direction='horizontal'>
+                    {(provided, snapshot) => (
                       <div
-                        className='w_100px ml_45px mb_45px relative'
-                        key={e.id}
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className='flex flex-wrap'
                       >
-                        <div className='w_100px h_100px rounded overflow-hidden border'>
-                          {
-                            e.image?(
-                              <img alt='' src={e.image[0]} className='cursor-pointer' />
-                            ):(
-                              <video className='object-fit h-full w-full' src={e.video_url}/>
-                            )
-                          }
-                        </div>
-                        <div className='text-overflow w_100px px-1 font_12 mt-1 text-center'>
-                          {e.name}
-                        </div>
-                        <div
-                          className='absolute top-7px right-7px h-auto flex items-center'
-                          onClick={() => this.handleDeleteChosen(e.id)}
-                        >
-                          <CloseCircleTwoTone twoToneColor='#ee6843' />
-                        </div>
+                        {chosenList.map((e, i) => {
+                          return (
+                            <Draggable key={e && e.id} draggableId={e && [e.id].toString()} index={i}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className='w_100px ml_45px mb_45px relative'
+                                  key={e.id}
+                                >
+                                  <div className='w_100px h_100px rounded overflow-hidden border'>
+                                    {e.image ? (
+                                      <img
+                                        alt=''
+                                        src={e.image[0]}
+                                        className='cursor-pointer'
+                                      />
+                                    ) : (
+                                      <video
+                                        className='object-fit h-full w-full'
+                                        src={e.video_url}
+                                      />
+                                    )}
+                                  </div>
+                                  <div className='text-overflow w_100px px-1 font_12 mt-1 text-center'>
+                                    {e.name}
+                                  </div>
+                                  <div
+                                    className='absolute top-7px right-7px h-auto flex items-center'
+                                    onClick={() =>
+                                      this.handleDeleteChosen(e.id)
+                                    }
+                                  >
+                                    <CloseCircleTwoTone twoToneColor='#ee6843' />
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    )}
+                  </Droppable>
                 </DragDropContext>
               </div>
             </div>
           )}
           <div className='footer fixed bottom_15px z-10 left_95px w_100vw-100px flex items-center justify-center bg-white pt_15px py_30px'>
-            <button className='mr-6 rounded border px-8 height_30px box-border' onClick={this.props.history.goBack}>
+            <button
+              className='mr-6 rounded border px-8 height_30px box-border'
+              onClick={this.props.history.goBack}
+            >
               取 消
             </button>
             {chosenList.length && goodsName ? (
@@ -242,4 +313,9 @@ class PlayInfo extends React.Component {
   }
 }
 
-export default PlayInfo;
+const mapStateToProps = (state) => ({
+  user: state.profile.id,
+});
+
+
+export default connect(mapStateToProps)(PlayInfo);
