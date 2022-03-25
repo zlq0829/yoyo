@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Upload, Input, message } from 'antd';
+import { Upload, Input, message, Radio } from 'antd';
 import { EditOutlined, CameraTwoTone } from '@ant-design/icons';
 import utils from '@/utils'
 import API from '@/services';
@@ -9,7 +9,7 @@ import './index.less';
 import defaultAvatar from '@/assets/images/character_model_yoyo.png';
 
 const { validate, type, auth } = utils
-const { profile } = action
+const { profile, quality } = action
 
 class Profile extends React.Component {
   constructor(props) {
@@ -49,7 +49,7 @@ class Profile extends React.Component {
     if(response && response.code === 200 && response.data) {
       auth.setLocal('userInfo', type.toString(response.data))
       this.setState({resetName: false})
-      this.props.handleKeepProfile(response.data)
+      this.props.handleProfile(response.data)
     }
   };
 
@@ -79,9 +79,13 @@ class Profile extends React.Component {
     let userInfo = auth.getLocal('userInfo') && JSON.parse(auth.getLocal('userInfo'))
     userInfo.avatar = file.response?.data
     auth.setLocal('userInfo', type.toString(userInfo))
-    this.props.handleKeepProfile(userInfo)
+    this.props.handleProfile(userInfo)
   };
 
+  // Radio事件
+  handleRadioChange = (e) => {
+    console.log(e.target.value)
+  }
   // 上传图片参数
   data = (file) => {
     const suffix = file.name.slice(file.name.lastIndexOf('.'));
@@ -93,13 +97,16 @@ class Profile extends React.Component {
 
   componentDidMount() {
     this.setState({
-      avatar: this.props.userInfo.profile.avatar,
-      nickName: this.props.userInfo.profile.nickname,
-      hidePhoneNum: validate.hidePhoneNum(type.toString(this.props.userInfo.profile.phone_num))
+      avatar: this.props.userInfo.avatar,
+      nickName: this.props.userInfo.nickname,
+      hidePhoneNum: validate.hidePhoneNum(type.toString(this.props.userInfo.phone_num))
     });
   }
 
   render() {
+    const { avatar, nickName, resetName, hidePhoneNum } = this.state
+    console.log(this.props)
+    const { radioValue, handleRadioChange } = this.props
     return (
       <div className='profile overflow-hidden box-border'>
         <div className='bg-white rounder relative profile_h_full'>
@@ -114,11 +121,11 @@ class Profile extends React.Component {
                     action={`${process.env.REACT_APP_API}/api/common/upload`}
                     accept='.jpg, .png, .gif, .webp'
                   >
-                    {this.state.avatar? (
+                    {avatar? (
                       <div className='relative avatar h-full'>
                         <img
                           className='h-full'
-                          src={this.state.avatar}
+                          src={avatar}
                           alt=''
                         />
                         <div className='absolute top-0 left-0 z-10 h_w_100 rounded text-center hidden flex-col justify-center avatar_model'>
@@ -154,9 +161,9 @@ class Profile extends React.Component {
               </div>
               <div className='ml-8 w__60 box-border pr-8'>
                 <div className='p_t_b_30 form border-b'>
-                  {!this.state.resetName ? (
+                  {!resetName ? (
                     <div className='font_26  font-semibold flex items-center'>
-                      <span className='mr-4 text-black'>{this.state.nickName}</span>
+                      <span className='mr-4 text-black'>{nickName}</span>
                       <div
                         className='cursor-pointer'
                         onClick={() => this.handleResetName(true)}
@@ -174,7 +181,7 @@ class Profile extends React.Component {
                           style={{  width: '420px', border: '1px solid #ccc',  }}
                           value={this.state.nickNamer}
                           onChange={e =>{
-                            // this.setState({nickNamer: e.target.value})
+                            this.setState({nickNamer: e.target.value})
                           }
                           }
                         />
@@ -200,7 +207,7 @@ class Profile extends React.Component {
                 <div className='p_t_b_30 form border-b'>
                   <div className='font_15 color-444 font-semibold flex items-center'>
                     <span className='mr-4 w_120'>手机号码</span>
-                    <div className='cursor-pointer'>{this.state.hidePhoneNum}</div>
+                    <div className='cursor-pointer'>{ hidePhoneNum }</div>
                   </div>
                 </div>
 
@@ -214,7 +221,20 @@ class Profile extends React.Component {
                 <div className='p_t_b_30 form border-b'>
                   <div className='font_15 color-444 font-semibold flex items-center'>
                     <span className='mr-4 w_120'>版本类型</span>
-                    <div className='cursor-pointer'>个人免费版</div>
+                    <div className='cursor-pointer'>v1.4</div>
+                  </div>
+                </div>
+
+                <div className='p_t_b_30 form border-b'>
+                  <div className='font_15 color-444 font-semibold flex items-center'>
+                    <span className='mr-4 w_120'>动画质量</span>
+                    <div className='cursor-pointer flex'>
+                      <Radio.Group onChange={e => handleRadioChange(e.target.value)} value={radioValue}>
+                        <Radio value={'FLUENCY'}>流畅</Radio>
+                        <Radio value={'MEDIUM'}>平衡</Radio>
+                        <Radio value={'HEIGHT'}>高清</Radio>
+                      </Radio.Group>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -227,12 +247,17 @@ class Profile extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  handleKeepProfile: (data) =>{
+  handleProfile: (data) =>{
     dispatch(profile.addProfile(data))
+  },
+  handleRadioChange: (value) => {
+    dispatch(quality.handleChange(value))
   }
 });
+
 const mapStateToProps = (state) => ({
-  userInfo: state,
+  userInfo: state.profile,
+  radioValue: state.quality
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
