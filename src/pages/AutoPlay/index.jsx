@@ -45,7 +45,6 @@ const AutoPlay = (props) => {
     }
 
     if (response && response.code === 200 && response.data.length > 0) {
-      console.log(response.data)
       setGoodsList(response.data);
     }
   };

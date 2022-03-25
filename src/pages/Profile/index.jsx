@@ -10,6 +10,7 @@ import defaultAvatar from '@/assets/images/character_model_yoyo.png';
 
 const { validate, type, auth } = utils
 const { profile } = action
+
 class Profile extends React.Component {
   constructor(props) {
     super(props);
@@ -114,9 +115,9 @@ class Profile extends React.Component {
                     accept='.jpg, .png, .gif, .webp'
                   >
                     {this.state.avatar? (
-                      <div className='h_w_100 border-0 overflow-hidden relative avatar'>
+                      <div className='relative avatar h-full'>
                         <img
-                          className='w-full border-0 '
+                          className='h-full'
                           src={this.state.avatar}
                           alt=''
                         />

@@ -74,6 +74,19 @@ class PlayInfo extends React.Component {
     });
   };
 
+  handleClearContent = () => {
+    const { goodsList, chosenList } = this.state;
+    goodsList.forEach(e => {
+      e.choseState = false
+    })
+    chosenList.splice(0, chosenList.length);
+    this.setState({
+      goodsList,
+      chosenList,
+      goodsName: ''
+    })
+  }
+
   // 拖动选中的商品
   handleDragEnd = (result) =>{
     if( !result.destination ) {
@@ -109,6 +122,13 @@ class PlayInfo extends React.Component {
 
     if( response && response.code === 200) {
       message.success('添加成功！')
+      const that = this
+
+      // 延迟清空数据
+      let timeOut = setTimeout(()=>{
+        that.handleClearContent()
+        clearTimeout(timeOut)
+      }, 1500)
     }
   };
 

@@ -1,14 +1,11 @@
 import React from 'react';
 import { Radio, Upload, Input, Table, Select, message } from 'antd';
-import {
-  PlusOutlined,
-  UploadOutlined,
-  UndoOutlined,
-  LoadingOutlined
-} from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
+import utils from '@/utils';
 import API from '@/services';
 import './index.less';
 
+const {common: { downloadUrlFile }} = utils
 class GoodsInfo extends React.Component {
   constructor(props) {
     super(props);
@@ -27,7 +24,7 @@ class GoodsInfo extends React.Component {
           dataIndex: 'introduce',
           render: (text) => {
             return (
-              <div className='w-40 text-overflow-3 text-left m-auto'>
+              <div className='w-40 text-overflow-3 text-left m-auto font_12'>
                 {text}
               </div>
             );
@@ -39,20 +36,23 @@ class GoodsInfo extends React.Component {
           render: (defaultLabel, record, i) => {
             return (
               <div className='w-full'>
-                <Select
-                  value={defaultLabel}
-                  onChange={(e) => {
-                    this.state.dataSource[i].label = e;
-                    this.setState({
-                      dataSource: this.state.dataSource,
-                    });
-                  }}
-                  options={[
-                    { label: '开场', value: '开场' },
-                    { label: '自然', value: '自然' },
-                    { label: '赞美', value: '赞美' },
-                  ]}
-                ></Select>
+                <div className='font_12'>
+                  <Select
+                    bordered={false}
+                    value={defaultLabel}
+                    onChange={(e) => {
+                      this.state.dataSource[i].label = e;
+                      this.setState({
+                        dataSource: this.state.dataSource,
+                      });
+                    }}
+                    options={[
+                      { label: '开场', value: '开场' },
+                      { label: '自然', value: '自然' },
+                      { label: '赞美', value: '赞美' },
+                    ]}
+                  />
+                </div>
               </div>
             );
           },
@@ -62,7 +62,7 @@ class GoodsInfo extends React.Component {
           dataIndex: 'voice',
           render: (src) => {
             return (
-              <div className='w-full'>
+              <div className='w-full font_12'>
                 <audio controls src={src} className='m-auto'>
                   您的浏览器不支持 audio 标签。
                 </audio>
@@ -75,25 +75,28 @@ class GoodsInfo extends React.Component {
           dataIndex: 'speed',
           render: (defaultSpeed, record, i) => {
             return (
-              <div className='w-full'>
-                <Select
-                  value={defaultSpeed}
-                  onChange={(e) => {
-                    this.state.dataSource[i].speed = e;
-                    this.setState({
-                      dataSource: this.state.dataSource,
-                    });
-                  }}
-                  options={[
-                    { label: '0.5倍数', value: '0.5' },
-                    { label: '0.75倍数', value: '0.75' },
-                    { label: '1倍数', value: '1' },
-                    { label: '1.25倍数', value: '1.25' },
-                    { label: '1.5倍数', value: '1.5' },
-                    { label: '1.75倍数', value: '1.75' },
-                    { label: '2倍数', value: '2' },
-                  ]}
-                ></Select>
+              <div className='w-full font_12'>
+                <div>
+                  <Select
+                    bordered={false}
+                    value={defaultSpeed}
+                    onChange={(e) => {
+                      this.state.dataSource[i].speed = e;
+                      this.setState({
+                        dataSource: this.state.dataSource,
+                      });
+                    }}
+                    options={[
+                      { label: '0.5倍数', value: '0.5' },
+                      { label: '0.75倍数', value: '0.75' },
+                      { label: '1倍数', value: '1' },
+                      { label: '1.25倍数', value: '1.25' },
+                      { label: '1.5倍数', value: '1.5' },
+                      { label: '1.75倍数', value: '1.75' },
+                      { label: '2倍数', value: '2' },
+                    ]}
+                  />
+                </div>
               </div>
             );
           },
@@ -103,7 +106,7 @@ class GoodsInfo extends React.Component {
           dataIndex: 'other',
           render: (text, record, i) => {
             return (
-              <div className='w-full flex items-center justify-center'>
+              <div className='w-full flex items-center justify-center font_12'>
                 <Upload
                   beforeUpload={({ file }) => { this.handleUploadBefore(i) }}
                   onChange={({ file }) => this.handleUpdateVioce(i, file)}
@@ -112,20 +115,22 @@ class GoodsInfo extends React.Component {
                   data={{ preffix: 1 }}
                   action={`${process.env.REACT_APP_API}/api/commodity/voice_replace`}
                   accept='audio/ogg,audio/mp3,audio/wav,audio/m4a,audio/flac'>
-                  <div
-                    className='py-1 px-2 border rounded flex items-center mr-4'>
-                    {
-                      record.updateStatus ? <LoadingOutlined /> : <UploadOutlined />
-                    }
-                    <span>上传</span>
+                  <div className='flex items-center justify-center h-7 w-20 border rounded mr-4'
+                  >
+                    <span className='font_12'>替换语音</span>
                   </div>
                 </Upload>
                 <button
-                  className='py-1 px-2 border rounded flex items-center'
+                  className='flex items-center justify-center h-7 w-20 border rounded mr-4'
                   onClick={(e) => this.handleVioceRecover(record.sentenceId)}
                 >
-                  <UndoOutlined />
-                  <span>复原</span>
+                  <span className='font_12'>复原</span>
+                </button>
+                <button
+                  className='flex items-center justify-center h-7 w-20 border rounded mr-4'
+                  onClick={(e) => this.handleVioceDowload(record)}
+                >
+                  <span className='font_12'>下载语音</span>
                 </button>
               </div>
             );
@@ -168,11 +173,11 @@ class GoodsInfo extends React.Component {
     try {
       response = await API.goodsManageApi.addGoods(data);
     } catch (error) {
-      message.error('添加失败');
+      message.error('语音生成失败！');
       return false;
     }
     if (response && response.code === 200 && response.data) {
-      message.success('添加成功，等待语音生成');
+      message.success('添加成功，退出等待语音生成！');
       let timeOut = setTimeout(() => {
         this.props.history.goBack();
         clearTimeout(timeOut);
@@ -266,6 +271,12 @@ class GoodsInfo extends React.Component {
       return false
     }
   };
+
+  // 下载语音
+  handleVioceDowload = async (url) => {
+    // window.open(url.voice)
+    downloadUrlFile(url.voice)
+  }
 
   async componentDidMount() {
     if (!this.props.location.query.isAdd) {
@@ -403,14 +414,14 @@ class GoodsInfo extends React.Component {
             </div>
           </div>
           {
-            !isAdd && (
-              <div className='tabel_voice mt-12 ml-3'>
+            dataSource.length > 0 && (
+              <div className='tabel_voice mt-12 ml-3 '>
                 {
                   <Table
                     pagination={false}
                     columns={columns}
                     dataSource={dataSource}
-                    className='text-center'
+                    className='text-center font_12'
                   />
                 }
               </div>
