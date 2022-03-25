@@ -373,10 +373,6 @@ const AutoPlay = (props) => {
               </div>
             </div>
           )}
-
-
-
-
           <div
             className='font_12 color_FF8462 px-1 bg-001529 absolute right-0 top-2 rounded-l cursor-pointer'
             onClick={() => { setReverse((reverse) => !reverse)}}
