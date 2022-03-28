@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { Select, Empty, message } from 'antd';
+import { Rnd } from 'react-rnd'
 import utils from '@/utils';
 import API from '@/services';
 import action from '@/actions';
@@ -225,15 +226,18 @@ const AutoPlay = (props) => {
       //wheelDelta的值为正（120.240...）则是鼠标向上；为负（-120，-240）则是向下
       if (e.wheelDelta > 0) {
         const width = offsetWidth + offsetWidth * 0.05;
-        console.log()
         if(c_width - width <= 0) {
           o.style.width = c_width + 'px';
           o.style.height = c_width + 'px';
         } else {
           o.style.width = offsetWidth + offsetWidth * 0.05 + 'px';
           o.style.height = offsetWidth + offsetWidth * 0.05 + 'px';
-          o.style.left = left + disX * 0.05 + 'px';
           o.style.top = top + disY * 0.05 + 'px';
+          if(o.offsetWidth + left >= c.offsetWidth) {
+            o.style.left = c.offsetWidth - o.offsetWidth + 'px'
+          } else {
+            o.style.left = left + disX * 0.05 + 'px';
+          }
         }
 
         //当商品的right 或者 left 不为 0时,放大到父盒子的边界即停止
@@ -254,7 +258,6 @@ const AutoPlay = (props) => {
         o.style.height = offsetWidth - offsetWidth * 0.05 + 'px';
         o.style.left = left + disX * 0.05 + 'px';
         o.style.top = top + disY * 0.05 + 'px';
-
       }
     };
   };
@@ -365,18 +368,17 @@ const AutoPlay = (props) => {
                 </div>
 
                 <div
-                  className='absolute rounded goods-img overflow-hidden right-36 top-4 h_13vh w_13vh bg-black'
+                  className='absolute rounded goods-img overflow-hidden right-36 top-4 h_13vh w_13vh'
                   onDragStart={handleDragStart}
                 >
-                  <img src={yoyo} alt='' className='w-full h-full' />
+                  {
+                    goodsUrl && (<img src={goodsUrl} alt='' />)
+                  }
+
                 </div>
               </div>
             </div>
           )}
-
-
-
-
           <div
             className='font_12 color_FF8462 px-1 bg-001529 absolute right-0 top-2 rounded-l cursor-pointer'
             onClick={() => { setReverse((reverse) => !reverse)}}
