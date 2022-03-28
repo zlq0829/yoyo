@@ -7,10 +7,12 @@ import API from '@/services';
 import action from '@/actions';
 import defaultBgImage from '@/assets/images/backgroundImg.jpg';
 import yoyo from '@/assets/images/character_model_yoyo.png';
+import titleLine from '@/assets/ui/autoplay/image-title-line.png';
 import './index.less';
 
 const {
   type: { toString },
+  validate: { isImage },
 } = utils;
 const {
   play: { stop, start },
@@ -63,6 +65,7 @@ const AutoPlay = (props) => {
         option.label = option.name;
         option.value = option.id;
       });
+      console.log(response.data.content);
       setOptions(response.data.content);
       setValue(response.data.content[0].label);
       // 设定初始值
@@ -206,9 +209,9 @@ const AutoPlay = (props) => {
   const handleScale = () => {
     const o = document.getElementsByClassName('goods-img')[0];
     const c = document.getElementsByClassName('center')[0];
-    let c_width = c.offsetWidth
-    if(reverse) {
-      c_width = c.offsetHeight
+    let c_width = c.offsetWidth;
+    if (reverse) {
+      c_width = c.offsetHeight;
     }
     o.onmousewheel = function (e) {
       //获取图片的宽高
@@ -225,8 +228,8 @@ const AutoPlay = (props) => {
       //wheelDelta的值为正（120.240...）则是鼠标向上；为负（-120，-240）则是向下
       if (e.wheelDelta > 0) {
         const width = offsetWidth + offsetWidth * 0.05;
-        console.log()
-        if(c_width - width <= 0) {
+        console.log();
+        if (c_width - width <= 0) {
           o.style.width = c_width + 'px';
           o.style.height = c_width + 'px';
         } else {
@@ -237,24 +240,22 @@ const AutoPlay = (props) => {
         }
 
         //当商品的right 或者 left 不为 0时,放大到父盒子的边界即停止
-        if(!reverse) {
+        if (!reverse) {
           if (o.offsetLeft && width + o.offsetLeft >= c_width) {
             o.style.width = c_width - o.offsetLeft + 'px';
             o.style.height = c_width - o.offsetLeft + 'px';
           }
         } else {
-          if(o.offsetTop && width + o.offsetTop >= c_width) {
+          if (o.offsetTop && width + o.offsetTop >= c_width) {
             o.style.width = c_width - o.offsetTop + 'px';
             o.style.height = c_width - o.offsetTop + 'px';
           }
         }
-
       } else {
         o.style.width = offsetWidth - offsetWidth * 0.05 + 'px';
         o.style.height = offsetWidth - offsetWidth * 0.05 + 'px';
         o.style.left = left + disX * 0.05 + 'px';
         o.style.top = top + disY * 0.05 + 'px';
-
       }
     };
   };
@@ -263,18 +264,99 @@ const AutoPlay = (props) => {
     getPlaylist();
   }, []);
 
-  useEffect(() =>{
-    handleScale();
-  },[reverse])
+  useEffect(() => {
+    // handleScale();
+  }, [reverse]);
 
   return (
     <div className='auto_play flex justify-between h-full overflow-hidden'>
       {/* 左 */}
-      <div className='flex-1 rounded bg-white h-full'>
-        <div className='border-b text-center mb-3 h_45 line_height_45'>
-          直播列表
+      <div className='flex-1 rounded h-full bg-B8C5F8'>
+        <div className='text-center mt_12px'>
+          <span className='text-black font_16px'>直 播 列 表</span>
+          <div className='mt_8px'>
+            <img src={titleLine} className='m-auto' />
+          </div>
         </div>
-        <div className='mb-3 flex justify-between px-3 w_210_'>
+        <div className='px_12px flex flex-wrap mt_20px -ml-4'>
+          {options.map((p) => {
+            return (
+              <div
+                className='flex flex-col goods_item  w_80 ml-4 mb-4'
+                key={p.id}
+              >
+                {isImage(p.cover_image) ? (
+                  <div
+                    className='cursor-pointer rounded overflow-hidden'
+                    onClick={() => {
+                      // setGoodsUrl(p.cover_image && p.image[0]);
+                    }}
+                  >
+                    <div className='rounded w-full overflow-hidden'>
+                      <img
+                        src={p.cover_image}
+                        alt=''
+
+                      />
+                    </div>
+
+                    <div className='text-overflow px-1 text-center font_12'>{p.name}</div>
+                  </div>
+                ) : (
+                  <div
+                    className='h_80 cursor-pointer rounded overflow-hidden'
+                    onClick={() => {
+                      setGoodsWav(p.video_url);
+                    }}
+                  >
+                    <video
+                      src={p.cover_image}
+                      alt=''
+                      className='rounded w-full h-full object-fit'
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {/* {goodsList.map((g) => {
+            return (
+              <div
+                className='flex flex-col goods_item  w_80 ml-4 mb-4'
+                key={g.id}
+              >
+                {g.image?.length ? (
+                  <div
+                    className='h_80 cursor-pointer rounded overflow-hidden'
+                    onClick={() => {
+                      setGoodsUrl(g.image && g.image[0]);
+                    }}
+                  >
+                    <img
+                      src={g.image && g.image[0]}
+                      alt=''
+                      className='rounded'
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className='h_80 cursor-pointer rounded overflow-hidden'
+                    onClick={() => {
+                      setGoodsWav(g.video_url);
+                    }}
+                  >
+                    <video
+                      src={g.video_url}
+                      alt=''
+                      className='rounded w-full h-full object-fit'
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })} */}
+        </div>
+        {/* <div className='mb-3 flex justify-between px-3 w_210_'>
           <Select
             defaultActiveFirstOption
             value={value}
@@ -284,8 +366,8 @@ const AutoPlay = (props) => {
             options={options}
             onChange={handleChange}
           />
-        </div>
-        <div className='goods relative box-border pr-4 goods_h'>
+        </div> */}
+        {/* <div className='goods relative box-border pr-4 goods_h'>
           {goodsList.length > 0 ? (
             <div className='flex flex-wrap'>
               {goodsList.map((good) => {
@@ -331,12 +413,26 @@ const AutoPlay = (props) => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* 中 */}
-      <div className='m_l_r_24 w_505 flex-1 box-border flex flex-col'>
-        <div className={['rounded relative flex-1 bg-white'].join(' ')}>
+      <div className='m_l_r_24 w_505 flex-1 box-border flex flex-col h-full'>
+        <div className='top h_55px bg-B8C5F8 rounded-tl rounded-tr text-center box-border'>
+          <div className='mt_12px'>
+            <span className='text-black font_16px'>预 览 窗 口</span>
+            <div className='mt_8px'>
+              <img src={titleLine} className='m-auto' />
+            </div>
+          </div>
+        </div>
+        <div className='center bg-white flex-1'></div>
+        <div className='bottom h_65px bg-B8C5F8 rounded-bl rounded-br flex justify-center items-center'>
+          <button className='h_35px w_127px text-white btn_linear-gradient rounded-full'>
+            开始直播
+          </button>
+        </div>
+        {/* <div className={['rounded relative flex-1 bg-white'].join(' ')}>
           {!reverse ? (
             <div className='w-full h-full relative center'>
               <div className='play_window h-full rounded' />
@@ -387,13 +483,16 @@ const AutoPlay = (props) => {
           >
             {!playState ? <span>开始直播</span> : <span>关闭直播</span>}
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* 右 */}
-      <div className='flex-1 rounded bg-white'>
-        <div className='border-b text-center mb-3 h_45 line_height_45'>
-          直播间互动
+      <div className='flex-1 rounded  bg-B8C5F8'>
+        <div className='text-center mt_12px'>
+          <span className='text-black font_16px'>直 播 互 动</span>
+          <div className='mt_8px'>
+            <img src={titleLine} className='m-auto' />
+          </div>
         </div>
         <div className='interactive_area_h relative'>
           <div className='absolute empty_icon'>

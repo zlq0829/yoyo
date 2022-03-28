@@ -19,7 +19,7 @@ function _Layout(props) {
   return (
     <div className='flex-1'>
       <Layout className='layout'>
-        <Layout.Sider  trigger={null} width='108px'>
+        <Layout.Sider  trigger={null} width='108px' breakpoint='xl'>
           <div className='avatar  mt_40px'>
             <div className='rounded-full h_w_66px box-border m-auto border_3px'></div>
             <div className='mt_10px text-center color-fff font_12'>

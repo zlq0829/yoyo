@@ -6,7 +6,6 @@ import Popover from '@/components/Popover';
 import utils from '@/utils';
 import action from '@/actions';
 import logo from '@/assets/images/logo.png';
-import titleBarBg from '@/assets/ui/autoplay/title.png'
 
 const { auth, main } = utils;
 const { login, play } = action;
