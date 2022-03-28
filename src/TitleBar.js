@@ -6,7 +6,7 @@ import Popover from '@/components/Popover';
 import utils from '@/utils';
 import action from '@/actions';
 import logo from '@/assets/images/logo.png';
-
+import titleBarBg from '@/assets/ui/autoplay/title.png'
 
 const { auth, main } = utils;
 const { login, play } = action;
@@ -68,7 +68,6 @@ function Titlebar(props) {
   return (
     <TitleBar
       id="title_bar"
-      iconSrc={logo}
       currentWindow={currentWindow}
       platform={process.platform}
       onClose={handleClose}
@@ -77,9 +76,6 @@ function Titlebar(props) {
       onDoubleClick={handleMaximize}
       maximized={maximized}
     >
-      {userInfo.token && (
-        <Popover userInfo={userInfo} loginOut={loginOut} />
-      )}
     </TitleBar>
   );
 };

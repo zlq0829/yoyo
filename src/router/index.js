@@ -1,22 +1,21 @@
-import {
-  PlayCircleOutlined,
-  AppstoreOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+
+import playIcon from '@/assets/ui/sidernav/icon-play.png'
+import goodsIcon from '@/assets/ui/sidernav/icon-goods.png'
+import systemIcon from '@/assets/ui/sidernav/icon-system.png'
 const routes = [
   {
     title: '自动播放',
-    Icon: PlayCircleOutlined,
+    image: playIcon,
     key: '/autoplay'
   },
   {
     title: '商品管理',
-    Icon: AppstoreOutlined,
+    image: goodsIcon,
     key: '/goodsmanage',
   },
   {
     title: '个人中心',
-    Icon: UserOutlined,
+    image: systemIcon,
     key: '/profile',
   },
 ];

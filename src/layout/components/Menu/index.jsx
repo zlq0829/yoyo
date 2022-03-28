@@ -6,7 +6,7 @@ class _Menu extends React.Component {
   // 一级
   renderMenuItem = ({key, Icon, title, image}) => {
     return(
-      <Menu.Item icon={image? <img src={image} style={{width: '14px', height: '14px'}} alt=''/> : <Icon />} key={key}>
+      <Menu.Item style={{padding: '0 10px'}} icon={image? <img src={image} style={{width: '14px', height: '14px'}} alt=''/> : <Icon />} key={key}>
         <Link to={key}>{title}</Link>
       </Menu.Item>
     )
@@ -29,6 +29,7 @@ class _Menu extends React.Component {
       <Menu
         mode='inline'
         theme='dark'
+        style={{background: '#B1BFF7'}}
       >
         {
           this.props.menus && this.props.menus.map(item => {
