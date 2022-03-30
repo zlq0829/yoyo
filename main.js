@@ -14,9 +14,8 @@ function isDev(env) {
 }
 
 function checkUpdate() {
-  if( process.platform == 'darwin' ) {
-    autoUpdater.setFeedURL('https://pack.yoyoavatar.com/yoyo/win32-x64/')
-  }
+  autoUpdater.setFeedURL('https://pack.yoyoavatar.com/yoyo/win32-x64/')
+
 }
 
 //监听'error'事件
