@@ -14,8 +14,7 @@ function isDev(env) {
 }
 
 function checkUpdate() {
-  autoUpdater.setFeedURL('https://pack.yoyoavatar.com/yoyo/win32-x64/')
-
+  autoUpdater.setFeedURL('https://oss.console.aliyun.com/bucket/oss-cn-shenzhen/yoyolivewebpack-test/object?path=yoyo%2Fwin32-x64%2F')
 }
 
 //监听'error'事件

@@ -429,6 +429,7 @@ const AutoPlay = (props) => {
                           setGoodsUrl(good.image && good.image[0]);
                           setGoodsWav('');
                           localStorage.setItem('goodsUrl', good.image[0])
+                          localStorage.removeItem('goodsWav')
                         }}
                       >
                         <img
@@ -444,6 +445,7 @@ const AutoPlay = (props) => {
                           setGoodsWav(good.video_url);
                           setGoodsUrl('');
                           localStorage.setItem('goodsWav', good.video_url)
+                          localStorage.removeItem('goodsUrl')
                         }}
                       >
                         <video

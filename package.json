@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "private": true,
   "main": "main.js",
   "homepage": ".",
@@ -130,6 +130,12 @@
       "language": "2052",
       "perMachine": true,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://oss.console.aliyun.com/bucket/oss-cn-shenzhen/yoyolivewebpack-test/object?path=yoyo%2Fwin32-x64%2F"
+      }
+    ]
   }
 }
