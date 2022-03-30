@@ -10,7 +10,7 @@ const PlayInfo = React.lazy(()=>import('@/pages/PlayInfo'))
 function ContentMain(props) {
   const { token } = props;
   return (
-    <div style={{ padding: '15px', position: 'relative', height: '100%' }}>
+    <div style={{ padding: '15px', position: 'relative' }} className='content_h'>
       <Switch>
         <Route exact path='/autoplay' component={AutoPlay} />
         <Route exact path='/goodsmanage' component={GoodsManage} />

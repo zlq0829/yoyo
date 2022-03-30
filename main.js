@@ -52,8 +52,8 @@ log.log(cwd)
 // 创建窗口
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 720,
+    width: 1175,
+    height: 875,
     frame: false,
     titleBarStyle: 'hidden', // 隐藏边框
     center: true,
@@ -135,7 +135,7 @@ function launchVideoProcess(flag) {
 }
 
 function onReady() {
-  launchVideoProcess()
+  // launchVideoProcess()
   createWindow()
   checkUpdate()
 }

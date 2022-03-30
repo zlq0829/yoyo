@@ -15,7 +15,7 @@ function _Layout(props) {
     return <Redirect to='/login'/>
   }
   return (
-    <div className='flex-1'>
+    <div className='flex-1 content_h'>
       <Layout className='layout'>
         <Layout.Sider defaultCollapsed={true} trigger={null} styl={{overflow: 'auto',height: '100vh',position: 'fixed',left: 0,}}>
           <SiderNav />
