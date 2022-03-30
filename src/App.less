@@ -41,7 +41,18 @@ code {
 .object-fit {
   object-fit: cover
 }
+// icon位置
+._top_7px {
+  top: -7px;
+}
+._right_7px {
+  right: -7px;
+}
 
+img[src=""],
+img:not([src]) {
+  opacity:0;
+}
 
 /*去除默认的边框线*/
 .ant-tabs-top > .ant-tabs-nav::before {

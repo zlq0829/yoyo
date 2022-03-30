@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { Select, Empty, message, Upload } from 'antd';
-import { CameraTwoTone } from '@ant-design/icons';
+import { CameraTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 
 import utils from '@/utils';
 import API from '@/services';
@@ -13,23 +13,31 @@ import './index.less';
 
 const {
   type: { toString },
+  validate: { validURL },
 } = utils;
-const {
-  play: { stop, start },
-} = action;
+const {play: { stop, start }} = action;
+
 const AutoPlay = (props) => {
+  const {playState, handlePlay} = props;
   const [options, setOptions] = useState([]);
   const [goodsList, setGoodsList] = useState([]);
   const [reverse, setReverse] = useState(false);
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [goodsUrl, setGoodsUrl] = useState('');
-  const [goodsWav, setGoodsWav] = useState('');
-  const [bgImg, setBgImg] = useState('');
+  const [goodsUrl, setGoodsUrl] = useState(localStorage.getItem('goodsUrl') || '');
+  const [goodsWav, setGoodsWav] = useState(localStorage.getItem('goodsWav') || '');
   const localServerUrl = process.env.REACT_APP_LOCAL_SERVER_URL;
-  const { playState, handlePlay } = props;
-  const [defaultImage, setdefaultImage] = useState(defaultBgImage);
-  const [bgImgList] = useState([yoyo, defaultBgImage]);
+  const [defaultImage, setDefaultImage] = useState(defaultBgImage);
+  const [bgImgList, setBackgroundList] = useState([
+    {
+      id: 100000,
+      image: yoyo,
+    },
+    {
+      id: 99999,
+      image: defaultBgImage,
+    },
+  ]);
 
   // 获取商品列表
   const getGoodsList = async (id) => {
@@ -77,20 +85,21 @@ const AutoPlay = (props) => {
 
   // 获取商品的位置
   const getGoodsPositions = (dom, winDom) => {
-    const o = document.getElementsByClassName(dom)[0];
-    const c = document.getElementsByClassName(winDom)[0];
+    const o = document.getElementsByClassName(winDom)[0];
+    const c = document.getElementsByClassName(dom)[0];
+
     const size = {
       window: {
-        w: c.offsetWidth,
-        h: c.offsetHeight,
-      },
-      product_resize: {
         w: o.offsetWidth,
         h: o.offsetHeight,
-        x1: o.offsetLeft,
-        y1: o.offsetTop,
-        x2: c.offsetWidth - o.offsetLeft,
-        y2: c.offsetHeight - o.offsetTop,
+      },
+      product_resize: {
+        w: c.offsetWidth,
+        h: c.offsetHeight,
+        x1: c.offsetLeft,
+        y1: c.offsetTop,
+        x2: o.offsetWidth - c.offsetLeft,
+        y2: o.offsetHeight - c.offsetTop,
       },
     };
     return size;
@@ -98,25 +107,43 @@ const AutoPlay = (props) => {
 
   // 获取人物位置和尺寸
   const getPersonPositions = (dom, winDom) => {
-    const o = document.getElementsByClassName(dom)[0];
-    const c = document.getElementsByClassName(winDom)[0];
+    const o = document.getElementsByClassName(winDom)[0];
+    const c = document.getElementsByClassName(dom)[0];
+
     return {
-      w: o.offsetWidth,
-      h: o.offsetHeight,
-      x1: o.offsetLeft,
-      y1: o.offsetTop,
-      x2: c.offsetWidth - o.offsetLeft,
-      y2: c.offsetHeight - o.offsetTop,
+      w: c.offsetWidth,
+      h: c.offsetHeight,
+      x1: c.offsetLeft,
+      y1: c.offsetTop,
+      x2: o.offsetWidth - c.offsetLeft,
+      y2: o.offsetHeight - c.offsetTop,
     };
+  };
+
+  // 获取背景图
+  const getBackground = async () => {
+    let response = null;
+    try {
+      response = await API.autoPlayApi.getBackground();
+    } catch (error) {
+      return false;
+    }
+    console.log(response)
+    if (response && response.code === 200) {
+      setBackgroundList([...bgImgList, ...response.data.content]);
+    }
   };
 
   // 通过 ws 连接视频处理服务器
   const connectVideoProcess = () => {
     const { localServerWsClient: client } = window;
     // 背景图
-    let bg = `../build${defaultImage}`;
+    let bg = validURL(defaultImage) ? defaultImage : `../build${defaultImage}`;
+
     if (process.env.NODE_ENV !== 'development') {
-      bg = `../app.asar.unpacked${defaultImage}`;
+      bg = validURL(defaultImage)
+        ? defaultImage
+        : `../app.asar.unpacked${defaultImage}`;
     }
 
     // 背景图 和 清晰图
@@ -170,7 +197,9 @@ const AutoPlay = (props) => {
       image: e.image,
       is_landscape: reverse,
       resize: false,
-      window: getGoodsPositions().window,
+      window: !reverse
+        ? getGoodsPositions('goods-img', 'winVer').window
+        : getGoodsPositions('goods-img', 'winHorizont').window,
       product_resize: !reverse
         ? getGoodsPositions('goods-img', 'winVer').product_resize
         : getGoodsPositions('goods-img', 'winHorizont').product_resize,
@@ -178,9 +207,7 @@ const AutoPlay = (props) => {
         ? getPersonPositions('person', 'winVer')
         : getPersonPositions('person', 'winHorizont'),
     }));
-    data.push({
-      is_landscape: reverse,
-    });
+
     client.send('sequence->' + toString(data));
   };
 
@@ -198,7 +225,6 @@ const AutoPlay = (props) => {
       disConnectVideoProcess();
       handlePlay(stop());
     } else {
-      getGoodsPositions();
       connectVideoProcess();
       handlePlay(start());
     }
@@ -213,7 +239,7 @@ const AutoPlay = (props) => {
 
     const o = document.getElementsByClassName(winDom)[0];
     const c = document.getElementsByClassName(dom)[0];
-    console.log(c, o);
+
     // 计算
     const disX = e.clientX - c.offsetLeft;
     const disY = e.clientY - c.offsetTop;
@@ -260,13 +286,13 @@ const AutoPlay = (props) => {
         // 限制最大缩放
         if (setWidth < c.offsetWidth) {
           // 横屏状态的高度处理
-          if (!reverse && o.offsetHeight >= c.offsetHeight) {
+          if (reverse && o.offsetHeight >= c.offsetHeight) {
             o.style.width = o.style.width;
+            o.style.height = c.offsetHeight + 'px';
           } else {
             o.style.width = setWidth + 'px';
+            o.style.height = setHeight + 'px';
           }
-
-          o.style.height = setHeight + 'px';
         } else {
           o.style.width = c.offsetWidth + 'px';
         }
@@ -293,7 +319,7 @@ const AutoPlay = (props) => {
   };
 
   // 上传先钩子函数
-  const handleBeforeUpload1 = (file) => {
+  const handleBeforeUpload = (file) => {
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
       message.error('图片不能超过5mb!');
@@ -311,19 +337,48 @@ const AutoPlay = (props) => {
   };
 
   // Upload 组件方法
-  const handleUploadChange = ({ fileList, file }) => {
-    setBgImg(file.response?.data)
-
+  const handleUploadChange = async  ({ fileList, file }) => {
+    console.log(file)
+    if (file.status === 'done') {
+      bgImgList.push({
+        id: bgImgList.length + Math.round(Math.random()),
+        image: file?.response.data,
+      });
+      setBackgroundList([...bgImgList]);
+      await API.autoPlayApi.addBackground({
+        image: file?.response.data
+      })
+    }
   };
 
+  // upload参数
+  const data = (file) => {
+    const suffix = file.name.slice(file.name.lastIndexOf('.'));
+    return {
+      suffix: suffix,
+      preffix: 'feedbackImg',
+    };
+  };
+
+  // 删除背景图
+  const handleDeleteBackgound = async (id) => {
+    try {
+      await API.autoPlayApi.deleteBackground(id);
+    } catch (error) {
+      message.error('删除失败！');
+      return false;
+    }
+  };
+
+  // 请求部分
   useEffect(() => {
     getPlaylist();
-    console.log(defaultImage);
+    getBackground();
   }, []);
 
   // 涉及到dom操作的部分
   useEffect(() => {
-    if (reverse) {
+    if (!reverse) {
       handleScale('goods-img', 'winVer');
       handleScale('person', 'winVer');
     } else {
@@ -331,6 +386,14 @@ const AutoPlay = (props) => {
       handleScale('person', 'winHorizont');
     }
   }, [reverse]);
+
+  // 关联直播按钮
+  useEffect(()=>{
+    if(!goodsUrl && !goodsWav) {
+      localStorage.removeItem('goodsUrl')
+      localStorage.removeItem('goodsWav')
+    }
+  },[goodsUrl, goodsWav])
 
   return (
     <div className='auto_play flex justify-between h-full overflow-hidden'>
@@ -364,6 +427,8 @@ const AutoPlay = (props) => {
                         className='h_80 cursor-pointer rounded overflow-hidden'
                         onClick={() => {
                           setGoodsUrl(good.image && good.image[0]);
+                          setGoodsWav('');
+                          localStorage.setItem('goodsUrl', good.image[0])
                         }}
                       >
                         <img
@@ -377,6 +442,8 @@ const AutoPlay = (props) => {
                         className='h_80 cursor-pointer rounded overflow-hidden'
                         onClick={() => {
                           setGoodsWav(good.video_url);
+                          setGoodsUrl('');
+                          localStorage.setItem('goodsWav', good.video_url)
                         }}
                       >
                         <video
@@ -405,60 +472,63 @@ const AutoPlay = (props) => {
           <div className='border-b text-center mb-3 h_45 line_height_45'>
             背景图
           </div>
-          <div className='flex flex-wrap  '>
-            {bgImgList.map((u) => {
+          <div className='flex flex-wrap'>
+            {bgImgList.map((u, i) => {
               return (
-                <div
-                  className='w_80 ml-4 mb-4 border h_80 rounded overflow-hidden'
-                  key={u}
-                  onClick={(e) => setdefaultImage(u)}
-                >
-                  <img src={u} />
+                <div key={u.id}>
+                  {i <= 8 && (
+                    <div
+                      className='w_80 ml-4 mb-4 border h_80 rounded  cursor-pointer relative'
+                      onClick={() => setDefaultImage(u.image)}
+                    >
+                      <div className='w-full h-full rounded cursor-pointer overflow-hidden'>
+                        <img src={u.image} alt='' />
+                      </div>
+
+                      {i > 4 && (
+                        <div
+                          className='absolute _top_7px _right_7px flex justify-center items-center'
+                          onClick={() => handleDeleteBackgound(u.id)}
+                        >
+                          <CloseCircleTwoTone />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
-            <div className='w_80 ml-4 mb-4 border h_80 rounded overflow-hidden cursor-pointer self_bg_img'>
-              <Upload
-                beforeUpload={handleBeforeUpload1}
-                onChange={handleUploadChange}
-                action={`${process.env.REACT_APP_API}/api/common/upload`}
-                accept='.jpg, .png, .gif, .webp'
-              >
-                <div className='relative w-full h-full '>
-                  {bgImg ? (
-                    <>
-                      <img className='h-full' src={bgImg}/>
-                      <div className='absolute top-0 left-0 z-10 w-full h-full rounded text-center hidden pt-4 box-border hover'>
-                        <CameraTwoTone twoToneColor='rgba(0, 0, 0, 0.4)' />
-                        <p style={{ marginTop: '10px', color: 'rgba(0, 0, 0, 0.4)' }}>
-                          更改背景
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className='absolute top-0 left-0 z-10 w-full h-full rounded text-center mt-4'>
-                        <CameraTwoTone twoToneColor='#000' />
-                        <p style={{ marginTop: '10px' }} className='font_12'>
-                          上传背景
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </Upload>
-            </div>
+            {!(bgImgList.length >= 9) && (
+              <div className='w_80 ml-4 mb-4 border h_80 rounded overflow-hidden cursor-pointer self_bg_img'>
+                <Upload
+                  data={data}
+                  beforeUpload={handleBeforeUpload}
+                  onChange={handleUploadChange}
+                  action={`${process.env.REACT_APP_API}/api/common/upload`}
+                  accept='.jpg, .png, .gif, .webp'
+                >
+                  <div className='relative w-full h-full'>
+                    <div className='absolute top-0 left-0 z-10 w-full h-full rounded text-center mt-4'>
+                      <CameraTwoTone twoToneColor='#000' />
+                      <p style={{ marginTop: '10px' }} className='font_12'>
+                        上传背景
+                      </p>
+                    </div>
+                  </div>
+                </Upload>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* 中 */}
-      <div className='m_l_r_24 w_505 flex-1 box-border flex flex-col'>
-        <div className={['rounded relative flex-1 bg-white'].join(' ')}>
+      <div className='m_l_r_24 w_405  box-border'>
+        <div className={['rounded relative flex-1 bg-white win_h '].join(' ')}>
           {!reverse ? (
-            <div className='w-full h-full relative winVer'>
+            <div className='w-full relative winVer'>
               <div className='play_window h-full rounded overflow-hidden'>
-                <img src={defaultImage} />
+                <img src={defaultImage} alt=''/>
               </div>
               {/* 人物 */}
               <div className='absolute bottom-0 w-full h-full'>
@@ -469,10 +539,9 @@ const AutoPlay = (props) => {
                   onDragStart={(e) => handleDragStart(e, 'person', 'winVer')}
                 />
               </div>
-
               {/* 商品 */}
               <div
-                className='absolute w_20vh h-auto overflow-hidden goods-img goods rounded left_505-20 top_20vh'
+                className='absolute w_20vh h_20vh overflow-hidden goods-img goods rounded left_405-22 top_20vh'
                 onDragStart={(e) => handleDragStart(e, 'goods-img', 'winVer')}
               >
                 {goodsUrl && <img src={goodsUrl} alt='' />}
@@ -480,11 +549,12 @@ const AutoPlay = (props) => {
               </div>
             </div>
           ) : (
-            <div className='w-full h-full flex flex-col justify-center relative'>
+            <div className='w-full flex flex-col justify-center items-center relative'>
               <div
-                className='w-full h_284 play_window relative winHorizont'
+                className='w-full h_230 relative winHorizont overflow-hidden'
                 style={{ backgroundSize: '100%, 100%' }}
               >
+                <img src={defaultImage} alt='' />
                 {/* 人物 */}
                 <img
                   src={yoyo}
@@ -517,16 +587,16 @@ const AutoPlay = (props) => {
             {reverse ? '横屏' : '竖屏'}
           </div>
         </div>
-        <div className='play_contron h_80 rounded bg-white mt-4 flex items-center justify-center px-4 box-border'>
+        <div className='h_60px rounded bg-white mt_15px flex items-center justify-center px-4 box-border'>
           {goodsUrl ? (
             <button
-              className='bg-FF8462 px-6 py-2 rounded-full text-white'
+              className='bg-FF8462 px-6 py-1.5 rounded-full text-white'
               onClick={handleVideoProcess}
             >
               {!playState ? <span>开始直播</span> : <span>关闭直播</span>}
             </button>
           ) : (
-            <button className='bg_CCC px-6 py-2 rounded-full text-white'>
+            <button className='bg_CCC px-6 py-1.5 rounded-full text-white'>
               开始直播
             </button>
           )}

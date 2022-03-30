@@ -45,12 +45,16 @@ function Titlebar(props) {
     auth.removeLocal('userInfo');
     handleLoginOut(login.clearAll({}));
     handlePlay(play.stop(false))
+    localStorage.removeItem('goodsWav')
+    localStorage.removeItem('goodsUrl')
   }
 
   // 关闭
   const handleClose = () => {
     currentWindow?.close()
     handlePlay(play.stop(false))
+    localStorage.removeItem('goodsWav')
+    localStorage.removeItem('goodsUrl')
   }
 
   useEffect(() => {

@@ -24,7 +24,47 @@ function getGoodsList(data) {
   })
 }
 
+/**
+ * @description 获取背景图
+ * @returns
+ */
+function getBackground() {
+  return request({
+    url: '/api/background',
+    method: 'GET'
+  })
+}
+
+/**
+ * @description 删除背景图
+ * @param {number} id
+ * @returns
+ */
+function deleteBackground(id) {
+  return request({
+    url: `/api/background/${id}`,
+    method: 'DELETE'
+  })
+}
+
+/**
+ * @description 添加背景图
+ * @param {object} data
+ * @returns
+ */
+function addBackground(data) {
+  return request({
+    url: '/api/background/add_background',
+    method: 'POST',
+    data
+  })
+}
+
+
 export {
   getPlaylist,
-  getGoodsList
+  getGoodsList,
+  getBackground,
+  addBackground,
+  deleteBackground
 }

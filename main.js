@@ -135,7 +135,7 @@ function launchVideoProcess(flag) {
 }
 
 function onReady() {
-  // launchVideoProcess()
+  launchVideoProcess()
   createWindow()
   checkUpdate()
 }
