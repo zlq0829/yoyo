@@ -7,15 +7,72 @@ import { CameraTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import utils from '@/utils';
 import API from '@/services';
 import action from '@/actions';
-import defaultBgImage from '@/assets/images/backgroundImg.jpg';
 import yoyo from '@/assets/images/character_model_yoyo.png';
 import './index.less';
+import background_one_ver from '@/assets/images/background-1.png'
+import background_two_ver from '@/assets/images/background-2.png'
+import background_three_ver from '@/assets/images/background-3.png'
+import background_four_ver from '@/assets/images/background-4.png'
+import background_five_ver from '@/assets/images/background-5.png'
+
+import background_one_hor from '@/assets/images/background-1-1.jpg'
+import background_two_hor from '@/assets/images/background-2-2.png'
+import background_three_hor from '@/assets/images/background-3-3.png'
+import background_four_hor from '@/assets/images/background-4-4.png'
+import background_five_hor from '@/assets/images/background-5-5.png'
 
 const {
   type: { toString },
   validate: { validURL },
 } = utils;
 const {play: { stop, start }} = action;
+
+// 竖向默认背景
+const verBackgroundList = [
+  {
+    id: 999,
+    image: background_one_ver
+  },
+  {
+    id: 998,
+    image: background_two_ver
+  },
+  {
+    id: 997,
+    image: background_three_ver
+  },
+  {
+    id: 996,
+    image: background_four_ver
+  },
+  {
+    id: 995,
+    image: background_five_ver
+  }
+]
+// 横向默认背景
+const horBackgroundList = [
+  {
+    id: 999,
+    image: background_one_hor
+  },
+  {
+    id: 998,
+    image: background_two_hor
+  },
+  {
+    id: 997,
+    image: background_three_hor
+  },
+  {
+    id: 996,
+    image: background_four_hor
+  },
+  {
+    id: 995,
+    image: background_five_hor
+  }
+]
 
 const AutoPlay = (props) => {
   const {playState, handlePlay} = props;
@@ -27,17 +84,8 @@ const AutoPlay = (props) => {
   const [goodsUrl, setGoodsUrl] = useState(localStorage.getItem('goodsUrl') || '');
   const [goodsWav, setGoodsWav] = useState(localStorage.getItem('goodsWav') || '');
   const localServerUrl = process.env.REACT_APP_LOCAL_SERVER_URL;
-  const [defaultImage, setDefaultImage] = useState(defaultBgImage);
-  const [bgImgList, setBackgroundList] = useState([
-    {
-      id: 100000,
-      image: yoyo,
-    },
-    {
-      id: 99999,
-      image: defaultBgImage,
-    },
-  ]);
+  const [defaultBackground, setDefaultImage] = useState(background_four_ver);
+  const [bgImgList, setBackgroundList] = useState([]);
 
   // 获取商品列表
   const getGoodsList = async (id) => {
@@ -128,9 +176,15 @@ const AutoPlay = (props) => {
     } catch (error) {
       return false;
     }
-    console.log(response)
+
     if (response && response.code === 200) {
-      setBackgroundList([...bgImgList, ...response.data.content]);
+      let tempList = [...verBackgroundList]
+      if(reverse) {
+        tempList = [...horBackgroundList]
+      }
+      tempList.push(...response.data.content)
+      console.log(tempList)
+      setBackgroundList(tempList)
     }
   };
 
@@ -138,12 +192,12 @@ const AutoPlay = (props) => {
   const connectVideoProcess = () => {
     const { localServerWsClient: client } = window;
     // 背景图
-    let bg = validURL(defaultImage) ? defaultImage : `../build${defaultImage}`;
+    let bg = validURL(defaultBackground) ? defaultBackground : `../build${defaultBackground}`;
 
     if (process.env.NODE_ENV !== 'development') {
-      bg = validURL(defaultImage)
-        ? defaultImage
-        : `../app.asar.unpacked${defaultImage}`;
+      bg = validURL(defaultBackground)
+        ? defaultBackground
+        : `../app.asar.unpacked${defaultBackground}`;
     }
 
     // 背景图 和 清晰图
@@ -338,16 +392,11 @@ const AutoPlay = (props) => {
 
   // Upload 组件方法
   const handleUploadChange = async  ({ fileList, file }) => {
-    console.log(file)
     if (file.status === 'done') {
-      bgImgList.push({
-        id: bgImgList.length + Math.round(Math.random()),
-        image: file?.response.data,
-      });
-      setBackgroundList([...bgImgList]);
       await API.autoPlayApi.addBackground({
         image: file?.response.data
       })
+      getBackground()
     }
   };
 
@@ -368,13 +417,24 @@ const AutoPlay = (props) => {
       message.error('删除失败！');
       return false;
     }
+    getBackground()
   };
 
   // 请求部分
   useEffect(() => {
     getPlaylist();
-    getBackground();
   }, []);
+
+  // h横竖屏切换背景图
+  useEffect(() => {
+    console.log(reverse)
+    if(!reverse) {
+      setBackgroundList(verBackgroundList)
+    } else {
+      setBackgroundList(horBackgroundList)
+      getBackground();
+    }
+  }, [reverse]);
 
   // 涉及到dom操作的部分
   useEffect(() => {
@@ -484,7 +544,7 @@ const AutoPlay = (props) => {
                       onClick={() => setDefaultImage(u.image)}
                     >
                       <div className='w-full h-full rounded cursor-pointer overflow-hidden'>
-                        <img src={u.image} alt='' />
+                        <img src={u.image} alt='' className='h-full w-full'/>
                       </div>
 
                       {i > 4 && (
@@ -528,9 +588,9 @@ const AutoPlay = (props) => {
       <div className='m_l_r_24 w_405  box-border'>
         <div className={['rounded relative flex-1 bg-white win_h '].join(' ')}>
           {!reverse ? (
-            <div className='w-full relative winVer'>
+            <div className='w-full relative winVer h-full'>
               <div className='play_window h-full rounded overflow-hidden'>
-                <img src={defaultImage} alt=''/>
+                <img src={defaultBackground} alt=''/>
               </div>
               {/* 人物 */}
               <div className='absolute bottom-0 w-full h-full'>
@@ -556,7 +616,7 @@ const AutoPlay = (props) => {
                 className='w-full h_230 relative winHorizont overflow-hidden'
                 style={{ backgroundSize: '100%, 100%' }}
               >
-                <img src={defaultImage} alt='' />
+                <img src={defaultBackground} alt='' />
                 {/* 人物 */}
                 <img
                   src={yoyo}
