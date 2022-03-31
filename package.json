@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "main": "main.js",
   "homepage": ".",
@@ -134,7 +134,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "oss://yoyolivewebpack-test/yoyo/win32-x64/"
+        "url": "https://yoyolivewebpack-test.oss-cn-shenzhen.aliyuncs.com/yoyo/win32-x64"
       }
     ]
   }

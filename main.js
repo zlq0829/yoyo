@@ -1,4 +1,5 @@
-const { app, BrowserWindow, autoUpdater, dialog } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater')
 const path = require('path');
 const { spawn, exec } = require('child_process');
 
@@ -14,8 +15,10 @@ function isDev(env) {
 }
 
 // 版本更新
+
+
 function checkUpdate() {
-  autoUpdater.setFeedURL('oss://yoyolivewebpack-test/yoyo/win32-x64/')
+  autoUpdater.setFeedURL('https://yoyolivewebpack-test.oss-cn-shenzhen.aliyuncs.com/yoyo/win32-x64')
 
   // 检测更新
   autoUpdater.checkForUpdates()
@@ -30,7 +33,6 @@ function checkUpdate() {
     console.log('found new version')
   })
 
-
   //监听'update-downloaded'事件，新版本下载完成时触发
   autoUpdater.on('update-downloaded', () => {
     dialog.showMessageBox({
@@ -44,9 +46,8 @@ function checkUpdate() {
         app.quit()
       }
     })
-  })
+  })  
 }
-
 
 if (!isDev(process.env.NODE_ENV)) {
   cwd = path.join(__dirname, '..', 'server');
