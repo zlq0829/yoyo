@@ -84,8 +84,9 @@ const AutoPlay = (props) => {
   const [goodsUrl, setGoodsUrl] = useState(localStorage.getItem('goodsUrl') || '');
   const [goodsWav, setGoodsWav] = useState(localStorage.getItem('goodsWav') || '');
   const localServerUrl = process.env.REACT_APP_LOCAL_SERVER_URL;
-  const [defaultBackground, setDefaultImage] = useState(background_four_ver);
-  const [bgImgList, setBackgroundList] = useState([]);
+  const [defaultBackground, setDefaultImage] = useState();
+  const [backgroundID, setBackgoundID] = useState(localStorage.getItem('id') || 996)
+  const [bgImgList, setBackgroundList] = useState(verBackgroundList);
 
   // 获取商品列表
   const getGoodsList = async (id) => {
@@ -178,12 +179,13 @@ const AutoPlay = (props) => {
     }
 
     if (response && response.code === 200) {
-      let tempList = [...verBackgroundList]
+      let tempList = []
       if(reverse) {
         tempList = [...horBackgroundList]
+      } else {
+        tempList = [...verBackgroundList]
       }
       tempList.push(...response.data.content)
-      console.log(tempList)
       setBackgroundList(tempList)
     }
   };
@@ -420,32 +422,34 @@ const AutoPlay = (props) => {
     getBackground()
   };
 
-  // 请求部分
-  useEffect(() => {
-    getPlaylist();
-  }, []);
+  // 横竖屏切换背景图
+  useEffect( () => {
+    getBackground()
 
-  // h横竖屏切换背景图
-  useEffect(() => {
-    console.log(reverse)
-    if(!reverse) {
-      setBackgroundList(verBackgroundList)
-    } else {
-      setBackgroundList(horBackgroundList)
-      getBackground();
-    }
-  }, [reverse]);
-
-  // 涉及到dom操作的部分
-  useEffect(() => {
     if (!reverse) {
       handleScale('goods-img', 'winVer');
       handleScale('person', 'winVer');
+      setBackgroundList(verBackgroundList)
     } else {
       handleScale('goods-img', 'winHorizont');
       handleScale('person', 'winHorizont');
+      setBackgroundList(horBackgroundList)
     }
   }, [reverse]);
+
+  // 请求播放列表
+  useEffect(()=>{
+    getPlaylist()
+  }, [])
+
+  // 设定背景图
+  useEffect(()=>{
+    bgImgList.forEach(e => {
+      if(e.id == backgroundID) {
+        setDefaultImage(e.image)
+      }
+    })
+  }, [bgImgList, backgroundID])
 
   // 关联直播按钮
   useEffect(()=>{
@@ -462,7 +466,7 @@ const AutoPlay = (props) => {
         <div className='border-b text-center mb-3 h_45 line_height_45'>
           直播列表
         </div>
-        <div className='mb-3 flex justify-between px-3 w_210_'>
+        <div className='mb-3 flex justify-between px-3'>
           <Select
             defaultActiveFirstOption
             value={value}
@@ -541,7 +545,11 @@ const AutoPlay = (props) => {
                   {i <= 8 && (
                     <div
                       className='w_80 ml-4 mb-4 border h_80 rounded  cursor-pointer relative'
-                      onClick={() => setDefaultImage(u.image)}
+                      onClick={() => {
+                        // setDefaultImage(u.image)
+                        setBackgoundID(u.id)
+                        localStorage.setItem('id', u.id)
+                      }}
                     >
                       <div className='w-full h-full rounded cursor-pointer overflow-hidden'>
                         <img src={u.image} alt='' className='h-full w-full'/>
@@ -549,7 +557,7 @@ const AutoPlay = (props) => {
 
                       {i > 4 && (
                         <div
-                          className='absolute _top_7px _right_7px flex justify-center items-center'
+                          className='absolute _top_7px _right_7px flex justify-center items-center z-50'
                           onClick={() => handleDeleteBackgound(u.id)}
                         >
                           <CloseCircleTwoTone />
