@@ -590,7 +590,7 @@ const AutoPlay = (props) => {
           {!reverse ? (
             <div className='w-full relative winVer h-full'>
               <div className='play_window h-full rounded overflow-hidden'>
-                <img src={defaultBackground} alt=''/>
+                <img src={defaultBackground} alt='' className='w-full h-full'/>
               </div>
               {/* 人物 */}
               <div className='absolute bottom-0 w-full h-full'>
